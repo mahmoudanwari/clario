@@ -1,0 +1,161 @@
+---
+/**
+ * Demo contact form: validates in the browser, then shows a confirmation.
+ * It has no action, no method and no fetch — nothing can be transmitted.
+ */
+import type { Locale } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+import { interactive } from '../content/interactive.ts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const strings = t(lang);
+const copy = interactive[lang].contactForm;
+const topicKeys = ['general', 'office', 'deep', 'window', 'sanitation'] as const;
+
+const errors = strings.form.errors;
+---
+
+<div class="cform" data-contact-form data-errors={JSON.stringify(errors)} data-summary-text={strings.form.errorSummary}>
+  <h2 class="cform__title font-display">{copy.title}</h2>
+  <p class="demo-chip cform__notice">{strings.demo.formNotice}</p>
+
+  <form class="cform__form" novalidate data-form>
+    <div class="cform__row">
+      <div class="cform__field">
+        <label class="field-label" for="cf-name">{copy.name}</label>
+        <input class="field-input" type="text" id="cf-name" name="name" value={copy.defaults.name} required autocomplete="off" />
+        <p class="field-error" data-error-for="name" role="alert"></p>
+      </div>
+      <div class="cform__field">
+        <label class="field-label" for="cf-company">{copy.company}</label>
+        <input class="field-input" type="text" id="cf-company" name="company" value={copy.defaults.company} autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="cform__row">
+      <div class="cform__field">
+        <label class="field-label" for="cf-email">{copy.email}</label>
+        <input class="field-input" type="email" id="cf-email" name="email" value={copy.defaults.email} required autocomplete="off" />
+        <p class="field-error" data-error-for="email" role="alert"></p>
+      </div>
+      <div class="cform__field">
+        <label class="field-label" for="cf-topic">{copy.topic}</label>
+        <select class="field-input" id="cf-topic" name="topic">
+          {topicKeys.map((key) => <option value={key}>{copy.topics[key]}</option>)}
+        </select>
+      </div>
+    </div>
+
+    <div class="cform__field">
+      <label class="field-label" for="cf-message">{copy.message}</label>
+      <textarea class="field-input cform__textarea" id="cf-message" name="message" rows="5" required>{copy.defaults.message}</textarea>
+      <p class="field-error" data-error-for="message" role="alert"></p>
+    </div>
+
+    <p class="field-error" data-summary-error role="alert"></p>
+
+    <button type="submit" class="btn" data-submit>
+      {copy.submit}
+      <span class="btn-arrow" aria-hidden="true">→</span>
+    </button>
+  </form>
+
+  <div class="cform__done" data-done hidden tabindex="-1">
+    <span class="cform__done-mark" aria-hidden="true">✓</span>
+    <h3>{copy.doneTitle}</h3>
+    <p>{copy.doneText}</p>
+    <button type="button" class="btn btn-ghost" data-restart>{copy.again}</button>
+  </div>
+</div>
+
+<style>
+  .cform { border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-paper); padding: clamp(1.25rem, 1rem + 2vw, 2.25rem); }
+  .cform__title { font-size: var(--step-2); margin-bottom: 0.75rem; }
+  .cform__notice { margin-bottom: 1.5rem; }
+  .cform__form { display: flex; flex-direction: column; gap: 1.25rem; }
+  .cform__form[hidden] { display: none; }
+  .cform__row { display: grid; gap: 1.25rem; }
+  @media (min-width: 40rem) { .cform__row { grid-template-columns: 1fr 1fr; } }
+  .cform__field { min-width: 0; }
+  .cform__textarea { min-height: 8rem; resize: vertical; line-height: 1.6; }
+
+  .cform__done { text-align: center; padding: 1rem 0; }
+  .cform__done[hidden] { display: none; }
+  .cform__done-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 3.25rem; height: 3.25rem; border-radius: 999px;
+    background: var(--color-forest); color: var(--color-ivory); font-size: 1.5rem; margin-bottom: 1rem;
+  }
+  .cform__done h3 { font-size: var(--step-1); margin-bottom: 0.75rem; }
+  .cform__done p { color: var(--color-ink-soft); max-width: 32rem; margin: 0 auto 1.75rem; line-height: 1.7; }
+</style>
+
+<script>
+  function initContactForm() {
+    const root = document.querySelector<HTMLElement>('[data-contact-form]');
+    if (!root || root.dataset.wired) return;
+    root.dataset.wired = 'true';
+
+    const form = root.querySelector<HTMLFormElement>('[data-form]')!;
+    const done = root.querySelector<HTMLElement>('[data-done]')!;
+    const restart = root.querySelector<HTMLButtonElement>('[data-restart]')!;
+    const summaryError = root.querySelector<HTMLElement>('[data-summary-error]')!;
+    const errors = JSON.parse(root.dataset.errors!) as Record<string, string>;
+    const summaryText = root.dataset.summaryText!;
+
+    const setError = (name: string, message: string) => {
+      const el = root.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      if (el) el.textContent = message;
+      const input = form.querySelector<HTMLElement>(`[name="${name}"]`);
+      if (message) input?.setAttribute('aria-invalid', 'true');
+      else input?.removeAttribute('aria-invalid');
+    };
+
+    form.addEventListener('submit', (e) => {
+      // No action/method is set, but prevent default explicitly so a submit
+      // can never navigate or send anything, in any browser.
+      e.preventDefault();
+
+      ['name', 'email', 'message'].forEach((n) => setError(n, ''));
+      summaryError.textContent = '';
+
+      const data = new FormData(form);
+      let ok = true;
+
+      const name = String(data.get('name') ?? '').trim();
+      if (!name) { setError('name', errors.required!); ok = false; }
+
+      const email = String(data.get('email') ?? '').trim();
+      if (!email) { setError('email', errors.required!); ok = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { setError('email', errors.email!); ok = false; }
+
+      const message = String(data.get('message') ?? '').trim();
+      if (!message) { setError('message', errors.required!); ok = false; }
+      else if (message.length < 10) {
+        setError('message', (errors.minLength ?? '').replace('{min}', '10'));
+        ok = false;
+      }
+
+      if (!ok) {
+        summaryError.textContent = summaryText;
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+        return;
+      }
+
+      // Validated — then discarded. Nothing leaves the browser.
+      form.hidden = true;
+      done.hidden = false;
+      done.focus();
+    });
+
+    restart.addEventListener('click', () => {
+      done.hidden = true;
+      form.hidden = false;
+      form.querySelector<HTMLInputElement>('input')?.focus();
+    });
+  }
+
+  initContactForm();
+  document.addEventListener('astro:page-load', initContactForm);
+</script>

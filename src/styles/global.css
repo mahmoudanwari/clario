@@ -1,0 +1,409 @@
+@import '@fontsource-variable/fraunces/opsz.css';
+@import '@fontsource-variable/fraunces/opsz-italic.css';
+@import '@fontsource-variable/manrope/index.css';
+@import 'tailwindcss';
+
+/* ==========================================================================
+   Clario design tokens
+   Palette refined from the brief for contrast (all body-text pairs ≥ 4.5:1):
+   forest #1F4A3C on ivory ≈ 9.4:1 · ink-soft #4A5550 on ivory ≈ 7.0:1
+   clay #8A5527 on ivory ≈ 5.6:1 · ivory on forest ≈ 9.4:1 · sand on forest ≈ 4.9:1
+   ========================================================================== */
+@theme {
+  --color-forest: #1f4a3c;
+  --color-forest-deep: #14332a;
+  --color-forest-night: #0e241e;
+  --color-sage: #93b6a2;
+  --color-sage-soft: #dbe6de;
+  --color-mist: #eaf0ea;
+  --color-ivory: #f6f2e9;
+  --color-paper: #fbf9f4;
+  --color-sand: #d6a574;
+  --color-sand-soft: #f0dcc4;
+  --color-clay: #8a5527;
+  --color-ink: #222a27;
+  --color-ink-soft: #4a5550;
+  --color-line: rgb(34 42 39 / 0.14);
+  --color-line-light: rgb(246 242 233 / 0.18);
+
+  --font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-sans: 'Manrope Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.75rem;
+  --radius-xl: 2.75rem;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --breakpoint-xs: 26rem;
+}
+
+:root {
+  /* Fluid type scale */
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.92rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.1rem + 0.45vw, 1.45rem);
+  --step-2: clamp(1.45rem, 1.25rem + 0.9vw, 2rem);
+  --step-3: clamp(1.8rem, 1.45rem + 1.7vw, 2.9rem);
+  --step-4: clamp(2.3rem, 1.6rem + 3.2vw, 4.4rem);
+  --step-5: clamp(2.8rem, 1.6rem + 5.6vw, 7.2rem);
+
+  /* Spacing rhythm */
+  --space-section: clamp(5rem, 3.5rem + 7vw, 10rem);
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  --max: 88rem;
+
+  /* Motion */
+  --dur-fast: 180ms;
+  --dur-base: 420ms;
+  --dur-slow: 900ms;
+
+  --focus-ring: 0 0 0 3px var(--color-paper), 0 0 0 6px var(--color-forest);
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 6rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-motion='on'] { scroll-behavior: smooth; }
+}
+
+body {
+  background: var(--color-ivory);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  font-feature-settings: 'ss01', 'cv11';
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 380;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+p { text-wrap: pretty; }
+
+em.accent, .accent-italic {
+  font-style: italic;
+  font-weight: 340;
+  color: inherit;
+}
+
+::selection { background: var(--color-sage); color: var(--color-forest-night); }
+
+:focus-visible {
+  outline: 3px solid var(--color-forest);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.on-dark :focus-visible, .on-dark:focus-visible { outline-color: var(--color-sand); }
+
+/* ---------- Layout primitives ---------- */
+.container-x {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section { padding-block: var(--space-section); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-clay);
+}
+.eyebrow::before {
+  content: '';
+  width: 2.25rem;
+  height: 1px;
+  background: currentColor;
+}
+.on-dark .eyebrow, .eyebrow.on-dark { color: var(--color-sand); }
+
+.lede {
+  font-size: var(--step-1);
+  line-height: 1.55;
+  color: var(--color-ink-soft);
+  max-width: 38rem;
+}
+.on-dark .lede, .lede.on-dark { color: rgb(246 242 233 / 0.82); }
+
+.prose-clario { max-width: 44rem; }
+.prose-clario h2 { font-size: var(--step-3); margin-top: 3rem; margin-bottom: 1rem; }
+.prose-clario h3 { font-size: var(--step-2); margin-top: 2rem; margin-bottom: 0.75rem; }
+.prose-clario p, .prose-clario ul { margin-bottom: 1.1rem; color: var(--color-ink-soft); }
+.prose-clario ul { list-style: none; padding: 0; }
+.prose-clario li { position: relative; padding-left: 1.5rem; margin-bottom: 0.5rem; }
+.prose-clario li::before {
+  content: ''; position: absolute; left: 0; top: 0.7em; width: 0.6rem; height: 1px; background: var(--color-clay);
+}
+.prose-clario a { color: var(--color-forest); text-decoration: underline; text-underline-offset: 3px; }
+.prose-clario strong { color: var(--color-ink); font-weight: 650; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  --btn-bg: var(--color-forest);
+  --btn-fg: var(--color-ivory);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-weight: 650;
+  font-size: 0.97rem;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-base) var(--ease-out-expo), background-color var(--dur-base);
+  cursor: pointer;
+  border: 0;
+  text-decoration: none;
+}
+/* Signature "squeegee sweep" highlight on hover */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.28) 46%, rgb(255 255 255 / 0.06) 54%, transparent 70%);
+  transform: translateX(-110%);
+  transition: transform 700ms var(--ease-out-expo);
+}
+.btn:hover::after { transform: translateX(110%); }
+.btn:hover { box-shadow: 0 14px 30px -14px rgb(20 51 42 / 0.55); }
+.btn:active { transform: translateY(1px) scale(0.99); }
+.btn .btn-arrow { transition: transform var(--dur-base) var(--ease-out-expo); }
+.btn:hover .btn-arrow { transform: translateX(4px); }
+
+.btn-sand { --btn-bg: var(--color-sand); --btn-fg: var(--color-forest-night); }
+.btn-ivory { --btn-bg: var(--color-ivory); --btn-fg: var(--color-forest); }
+.btn-ghost {
+  --btn-bg: transparent;
+  --btn-fg: currentColor;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.btn-ghost:hover { box-shadow: inset 0 0 0 1.5px currentColor, 0 14px 30px -18px rgb(0 0 0 / 0.4); }
+.btn-ghost::after { background: linear-gradient(105deg, transparent 30%, rgb(145 182 162 / 0.25) 50%, transparent 70%); }
+.btn[disabled], .btn[aria-disabled='true'] { opacity: 0.45; cursor: not-allowed; }
+
+.link-underline {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size var(--dur-base) var(--ease-out-expo);
+  padding-bottom: 2px;
+}
+.link-underline:hover, .link-underline[aria-current='page'] { background-size: 100% 1px; }
+
+/* ---------- Demo badges ---------- */
+.demo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--color-sand-soft);
+  color: var(--color-clay);
+}
+.on-dark .demo-chip { background: rgb(214 165 116 / 0.16); color: var(--color-sand); }
+
+/* ---------- Forms ---------- */
+.field-label { display: block; font-weight: 650; font-size: 0.95rem; margin-bottom: 0.45rem; }
+.field-hint { display: block; font-size: 0.85rem; color: var(--color-ink-soft); margin-top: 0.35rem; }
+.field-input {
+  width: 100%;
+  min-height: 3.1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid rgb(34 42 39 / 0.22);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font: inherit;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.field-input:hover { border-color: rgb(34 42 39 / 0.4); }
+.field-input:focus-visible { outline: none; border-color: var(--color-forest); box-shadow: 0 0 0 4px rgb(31 74 60 / 0.18); }
+.field-input[aria-invalid='true'] { border-color: #a63a2b; }
+.field-error { display: flex; gap: 0.4rem; align-items: flex-start; color: #9b2f22; font-size: 0.88rem; font-weight: 600; margin-top: 0.45rem; }
+.field-error:empty { display: none; }
+
+/* Choice tiles (radio cards) */
+.choice { position: relative; display: block; cursor: pointer; }
+.choice input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.choice-card {
+  display: flex; flex-direction: column; gap: 0.25rem;
+  height: 100%;
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid rgb(34 42 39 / 0.16);
+  background: var(--color-paper);
+  transition: border-color var(--dur-fast), background-color var(--dur-fast), transform var(--dur-fast) var(--ease-out-expo), box-shadow var(--dur-base);
+}
+.choice:hover .choice-card { border-color: rgb(31 74 60 / 0.5); transform: translateY(-2px); }
+.choice input:checked + .choice-card {
+  border-color: var(--color-forest);
+  background: var(--color-mist);
+  box-shadow: inset 0 0 0 1px var(--color-forest);
+}
+.choice input:focus-visible + .choice-card { box-shadow: var(--focus-ring); }
+.choice-title { font-weight: 700; }
+.choice-sub { font-size: 0.86rem; color: var(--color-ink-soft); }
+
+/* ---------- Motion system ----------
+   Content is visible by default. Only when JS confirms motion is ON does it
+   add .js-motion, which arms the reveal states. Nothing depends on JS to show. */
+.js-motion [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition: opacity 900ms var(--ease-out-expo), transform 1100ms var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js-motion [data-reveal='fade'] { transform: none; }
+.js-motion [data-reveal='mask'] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 100% 0 round var(--radius-lg));
+  transition: clip-path 1300ms var(--ease-out-expo);
+}
+.js-motion [data-reveal].is-in { opacity: 1; transform: none; }
+.js-motion [data-reveal='mask'].is-in { clip-path: inset(0 0 0 0 round var(--radius-lg)); }
+
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important; overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
+}
+
+/* ==========================================================================
+   Styles for elements created at runtime by the interactive islands.
+   Astro scopes component CSS by adding an attribute at build time, which
+   JS-created nodes never carry — so the calendar cells, time slots and
+   summary rows are styled here, globally, on purpose.
+   ========================================================================== */
+
+/* Image fitting for <Media>. Global because Astro's scoped CSS cannot reach an
+   <img> rendered two component layers down (page → component → Media → Image). */
+.media-fit-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.media-fit-width {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+/* Placeholders fill a container that has a definite height (a box with its own
+   aspect-ratio), and otherwise fall back to their own aspect ratio. */
+.media-placeholder--cover { min-height: 100%; }
+
+/* Review / confirmation summary rows (quote wizard + booking calendar) */
+.summary { display: grid; gap: 0.1rem; margin: 0 0 1.5rem; }
+.summary > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-line);
+}
+.summary dt { color: var(--color-ink-soft); font-size: 0.9rem; margin: 0; }
+.summary dd { margin: 0; font-weight: 700; text-align: right; }
+
+/* Booking calendar grid */
+.cal__weekdays span {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-ink-soft);
+  text-transform: uppercase;
+}
+.cal__day {
+  aspect-ratio: 1;
+  min-height: 2.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid transparent;
+  background: var(--color-mist);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background-color var(--dur-fast), border-color var(--dur-fast), transform var(--dur-fast);
+}
+.cal__day:hover:not(:disabled) { border-color: var(--color-forest); transform: translateY(-2px); }
+.cal__day:disabled { background: transparent; color: rgb(34 42 39 / 0.34); cursor: not-allowed; }
+.cal__day[aria-selected='true'] { background: var(--color-forest); color: var(--color-ivory); border-color: var(--color-forest); }
+.cal__day.is-today { box-shadow: inset 0 0 0 1.5px var(--color-clay); }
+.cal__day.is-empty { background: transparent; cursor: default; pointer-events: none; }
+.cal__day-dot { width: 0.3rem; height: 0.3rem; border-radius: 999px; background: var(--color-sage); }
+.cal__day[aria-selected='true'] .cal__day-dot { background: var(--color-sand); }
+
+/* Booking time slots */
+.slot {
+  padding: 0.7rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-line);
+  background: var(--color-paper);
+  font: inherit;
+  font-weight: 650;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color var(--dur-fast), background-color var(--dur-fast);
+}
+.slot:hover { border-color: var(--color-forest); }
+.slot[aria-pressed='true'] { background: var(--color-forest); color: var(--color-ivory); border-color: var(--color-forest); }
+.slots__empty { grid-column: 1 / -1; color: var(--color-ink-soft); font-size: 0.9rem; margin: 0; }
+
+/* Hairline grain for dark sections (pure CSS, no image) */
+.surface-forest {
+  background:
+    radial-gradient(120% 80% at 85% 0%, rgb(145 182 162 / 0.18), transparent 60%),
+    radial-gradient(90% 70% at 0% 100%, rgb(214 165 116 / 0.10), transparent 60%),
+    var(--color-forest-deep);
+  color: var(--color-ivory);
+}

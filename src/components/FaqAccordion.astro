@@ -1,0 +1,61 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+
+interface FaqItem { q: string; a: string }
+interface Props { lang: Locale; items: FaqItem[]; class?: string }
+const { lang, items, class: className = '' } = Astro.props;
+const strings = t(lang);
+---
+
+<div class={`faq ${className}`}>
+  <h2 class="faq__title font-display">{strings.faq.title}</h2>
+  <dl class="faq__list">
+    {items.map((item, i) => (
+      <details class="faq__item" data-reveal="fade">
+        <summary class="faq__question">
+          <span>{item.q}</span>
+          <span class="faq__icon" aria-hidden="true"></span>
+        </summary>
+        <div class="faq__answer"><p>{item.a}</p></div>
+      </details>
+    ))}
+  </dl>
+</div>
+
+<style>
+  .faq__title { font-size: var(--step-2); margin-bottom: 1.5rem; }
+  .faq__list { display: flex; flex-direction: column; margin: 0; }
+  .faq__item {
+    border-bottom: 1px solid var(--color-line);
+  }
+  .faq__item:first-child { border-top: 1px solid var(--color-line); }
+  .faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.3rem 0.25rem;
+    cursor: pointer;
+    font-weight: 650;
+    font-size: 1.02rem;
+    list-style: none;
+  }
+  .faq__question::-webkit-details-marker { display: none; }
+  .faq__icon {
+    position: relative;
+    flex-shrink: 0;
+    width: 1.1rem; height: 1.1rem;
+  }
+  .faq__icon::before, .faq__icon::after {
+    content: '';
+    position: absolute;
+    background: var(--color-forest);
+    transition: transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .faq__icon::before { top: 50%; left: 0; width: 100%; height: 2px; transform: translateY(-50%); }
+  .faq__icon::after { left: 50%; top: 0; width: 2px; height: 100%; transform: translateX(-50%); }
+  .faq__item[open] .faq__icon::after { transform: translateX(-50%) scaleY(0); }
+  .faq__answer { padding: 0 0.25rem 1.4rem; color: var(--color-ink-soft); max-width: 42rem; }
+  .faq__answer p { margin: 0; line-height: 1.65; }
+</style>

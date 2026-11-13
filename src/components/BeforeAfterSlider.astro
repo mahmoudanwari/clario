@@ -1,0 +1,159 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import type { ImageFile } from '../data/images.ts';
+import { t } from '../i18n/ui.ts';
+import Media from './Media.astro';
+
+interface Props { lang: Locale; before: ImageFile; after: ImageFile }
+const { lang, before, after } = Astro.props;
+const strings = t(lang);
+---
+
+<figure class="ba" data-reveal="mask">
+  <div class="ba__frame" data-ba-frame>
+    <div class="ba__layer ba__layer--after">
+      <Media file={after} lang={lang} class="ba__img" sizes="(min-width: 64rem) 60vw, 92vw" />
+      <span class="ba__tag ba__tag--after">{strings.beforeAfter.after}</span>
+    </div>
+    <div class="ba__layer ba__layer--before" data-ba-before style="--ba-pos:50%">
+      <Media file={before} lang={lang} class="ba__img" sizes="(min-width: 64rem) 60vw, 92vw" />
+      <span class="ba__tag ba__tag--before">{strings.beforeAfter.before}</span>
+    </div>
+
+    <div
+      class="ba__handle"
+      data-ba-handle
+      role="slider"
+      tabindex="0"
+      aria-label={strings.beforeAfter.sliderLabel}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="50"
+      style="--ba-pos:50%"
+    >
+      <span class="ba__handle-grip" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 6L3 12L9 18M15 6L21 12L15 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </div>
+  </div>
+  <figcaption class="ba__caption">{strings.beforeAfter.caption}</figcaption>
+</figure>
+
+<style>
+  .ba { margin: 0; }
+  .ba__frame {
+    position: relative;
+    /* Portrait-ish on phones so the room stays readable, widening on larger
+       screens to show more of the (very wide) matched pair. */
+    aspect-ratio: 3/2;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    background: var(--color-forest-deep);
+  }
+  @media (min-width: 48rem) { .ba__frame { aspect-ratio: 16/9; } }
+  @media (min-width: 72rem) { .ba__frame { aspect-ratio: 2/1; } }
+  .ba__layer { position: absolute; inset: 0; }
+  .ba__layer--before {
+    clip-path: inset(0 calc(100% - var(--ba-pos)) 0 0);
+  }
+  .ba__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ba__tag {
+    position: absolute;
+    top: 1rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgb(14 36 30 / 0.6);
+    color: var(--color-ivory);
+    backdrop-filter: blur(3px);
+  }
+  .ba__tag--before { left: 1rem; }
+  .ba__tag--after { right: 1rem; }
+
+  .ba__handle {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: var(--ba-pos);
+    width: 3px;
+    background: var(--color-ivory);
+    transform: translateX(-50%);
+    cursor: ew-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ba__handle-grip {
+    width: 2.75rem; height: 2.75rem;
+    border-radius: 999px;
+    background: var(--color-ivory);
+    color: var(--color-forest);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 20px -8px rgb(14 36 30 / 0.5);
+  }
+  .ba__handle:focus-visible .ba__handle-grip { outline: 3px solid var(--color-sand); outline-offset: 2px; }
+
+  .ba__caption { margin-top: 1rem; font-size: 0.85rem; color: var(--color-ink-soft); max-width: 36rem; }
+</style>
+
+<script>
+  function initBeforeAfter(root: ParentNode = document) {
+    root.querySelectorAll<HTMLElement>('[data-ba-frame]').forEach((frame) => {
+      if (frame.dataset.wired) return;
+      frame.dataset.wired = 'true';
+
+      const handle = frame.querySelector<HTMLElement>('[data-ba-handle]');
+      const before = frame.querySelector<HTMLElement>('[data-ba-before]');
+      if (!handle || !before) return;
+
+      const setPos = (pct: number) => {
+        const clamped = Math.min(100, Math.max(0, pct));
+        frame.style.setProperty('--ba-pos', `${clamped}%`);
+        handle.style.setProperty('--ba-pos', `${clamped}%`);
+        before.style.setProperty('--ba-pos', `${clamped}%`);
+        handle.setAttribute('aria-valuenow', String(Math.round(clamped)));
+      };
+
+      const posFromClientX = (clientX: number) => {
+        const rect = frame.getBoundingClientRect();
+        return ((clientX - rect.left) / rect.width) * 100;
+      };
+
+      let dragging = false;
+
+      const onMove = (clientX: number) => setPos(posFromClientX(clientX));
+
+      handle.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        handle.setPointerCapture(e.pointerId);
+      });
+      handle.addEventListener('pointermove', (e) => {
+        if (dragging) onMove(e.clientX);
+      });
+      handle.addEventListener('pointerup', () => { dragging = false; });
+      handle.addEventListener('pointercancel', () => { dragging = false; });
+
+      frame.addEventListener('pointerdown', (e) => {
+        if (e.target === handle || handle.contains(e.target as Node)) return;
+        onMove(e.clientX);
+      });
+
+      handle.addEventListener('keydown', (e) => {
+        const current = parseFloat(handle.getAttribute('aria-valuenow') || '50');
+        const step = e.shiftKey ? 10 : 4;
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { setPos(current - step); e.preventDefault(); }
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { setPos(current + step); e.preventDefault(); }
+        else if (e.key === 'Home') { setPos(0); e.preventDefault(); }
+        else if (e.key === 'End') { setPos(100); e.preventDefault(); }
+      });
+
+      setPos(50);
+    });
+  }
+  initBeforeAfter();
+  document.addEventListener('astro:page-load', () => initBeforeAfter());
+</script>

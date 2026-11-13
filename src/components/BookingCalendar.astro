@@ -1,0 +1,177 @@
+---
+/**
+ * Demonstration booking calendar. Availability is generated deterministically
+ * from the date itself (same date → same slots, for everyone), so it feels
+ * real without any backend. Nothing is reserved, sent or stored.
+ */
+import { localeMeta, type Locale } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+import { interactive } from '../content/interactive.ts';
+import { site } from '../data/site.ts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const strings = t(lang);
+const copy = interactive[lang].booking;
+
+const typeKeys = ['onsite', 'video', 'glass'] as const;
+
+const config = {
+  locale: localeMeta[lang].intl,
+  labels: {
+    available: copy.available,
+    unavailable: copy.unavailable,
+    selected: copy.selected,
+    today: copy.today,
+    slotsFor: copy.slotsFor,
+    noSlots: copy.noSlots,
+    pickDateFirst: copy.pickDateFirst,
+    types: Object.fromEntries(typeKeys.map((k) => [k, copy.types[k].title])),
+    type: copy.type,
+    date: copy.date,
+    time: copy.time,
+    city: copy.city,
+  },
+  errors: strings.form.errors,
+};
+---
+
+<div class="booking" data-booking data-config={JSON.stringify(config)}>
+  <p class="demo-chip booking__notice">{strings.demo.bookingNotice}</p>
+
+  <form class="booking__form" data-booking-form novalidate>
+    <!-- Assessment type -->
+    <fieldset class="booking__block">
+      <legend class="booking__legend">{copy.typeLegend}</legend>
+      <div class="choice-grid-3">
+        {typeKeys.map((key, i) => (
+          <label class="choice">
+            <input type="radio" name="assessment" value={key} checked={i === 0} />
+            <span class="choice-card">
+              <span class="choice-title">{copy.types[key].title}</span>
+              <span class="choice-sub">{copy.types[key].sub}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <div class="booking__cols">
+      <!-- Calendar -->
+      <section class="booking__block" aria-labelledby="cal-title">
+        <h3 class="booking__legend" id="cal-title">{copy.calendarTitle}</h3>
+        <div class="cal">
+          <div class="cal__head">
+            <button type="button" class="cal__nav" data-prev-month aria-label={copy.prevMonth}>←</button>
+            <h4 class="cal__month" data-month-label aria-live="polite"></h4>
+            <button type="button" class="cal__nav" data-next-month aria-label={copy.nextMonth}>→</button>
+          </div>
+          <div class="cal__weekdays" data-weekdays aria-hidden="true"></div>
+          <div class="cal__grid" role="grid" aria-labelledby="cal-title" data-cal-grid></div>
+          <p class="cal__help">{copy.gridHelp}</p>
+          <p class="field-error" data-error-for="date" role="alert"></p>
+        </div>
+      </section>
+
+      <!-- Slots + city -->
+      <section class="booking__block" aria-labelledby="slots-title">
+        <h3 class="booking__legend" id="slots-title" data-slots-title>{copy.calendarTitle}</h3>
+        <div class="slots" data-slots role="group" aria-labelledby="slots-title">
+          <p class="slots__empty">{copy.pickDateFirst}</p>
+        </div>
+        <p class="field-error" data-error-for="slot" role="alert"></p>
+
+        <div class="booking__city">
+          <label class="field-label" for="booking-city">{copy.cityLegend}</label>
+          <select class="field-input" id="booking-city" name="city">
+            {site.cities.map((city) => <option value={city.id}>{city[lang]}</option>)}
+          </select>
+        </div>
+      </section>
+    </div>
+
+    <!-- Review -->
+    <section class="booking__review" data-review hidden aria-labelledby="review-title">
+      <h3 id="review-title" class="booking__legend">{copy.reviewTitle}</h3>
+      <dl class="summary" data-review-summary></dl>
+    </section>
+
+    <p class="field-error" data-summary-error role="alert"></p>
+
+    <div class="booking__actions" data-actions>
+      <button type="button" class="btn" data-review-btn>
+        {copy.review}
+        <span class="btn-arrow" aria-hidden="true">→</span>
+      </button>
+      <button type="button" class="btn btn-sand" data-confirm hidden>{copy.confirm}</button>
+      <button type="button" class="btn btn-ghost" data-change hidden>{copy.change}</button>
+    </div>
+
+    <!-- Confirmation -->
+    <div class="booking__done" data-done hidden tabindex="-1">
+      <span class="booking__done-mark" aria-hidden="true">✓</span>
+      <h3>{copy.doneTitle}</h3>
+      <p class="booking__done-main">{copy.doneText}</p>
+      <p class="booking__done-sub">{copy.doneSub}</p>
+      <dl class="summary" data-done-summary></dl>
+      <button type="button" class="btn btn-ghost" data-restart>{copy.again}</button>
+    </div>
+  </form>
+</div>
+
+<style>
+  .booking { border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-paper); padding: clamp(1.25rem, 1rem + 2vw, 2.5rem); }
+  .booking__notice { margin-bottom: 1.5rem; }
+  .booking__block { border: 0; padding: 0; margin: 0 0 2rem; min-inline-size: 0; }
+  .booking__legend { font-family: var(--font-display); font-size: var(--step-1); margin-bottom: 1rem; padding: 0; }
+
+  .choice-grid-3 { display: grid; gap: 0.9rem; grid-template-columns: 1fr; }
+  @media (min-width: 48rem) { .choice-grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+  .booking__cols { display: grid; gap: 2.5rem; }
+  @media (min-width: 56rem) { .booking__cols { grid-template-columns: 1.15fr 0.85fr; gap: 3rem; } }
+
+  .cal__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+  .cal__month { font-family: var(--font-display); font-size: 1.15rem; text-transform: capitalize; }
+  .cal__nav {
+    width: 2.5rem; height: 2.5rem; border-radius: 999px;
+    border: 1.5px solid var(--color-line); background: transparent;
+    cursor: pointer; font-size: 1rem; color: var(--color-forest);
+  }
+  .cal__nav:hover { border-color: var(--color-forest); background: var(--color-mist); }
+
+  /* Day cells, weekday initials and time slots are created in JS, so their
+     visual styles live in global.css (Astro's scoped CSS cannot reach them). */
+  .cal__weekdays, .cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.35rem; }
+  .cal__weekdays { margin-bottom: 0.4rem; }
+
+  .cal__help { font-size: 0.78rem; color: var(--color-ink-soft); margin-top: 0.75rem; }
+
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 0.6rem; min-height: 6rem; align-content: start; }
+
+  .booking__city { margin-top: 1.5rem; }
+
+  .booking__review[hidden] { display: none; }
+
+  .booking__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; padding-top: 1.5rem; border-top: 1px solid var(--color-line); }
+  .booking__actions[hidden] { display: none; }
+  .booking__actions .btn[hidden] { display: none; }
+
+  .booking__done { text-align: center; }
+  .booking__done[hidden] { display: none; }
+  .booking__done-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 3.5rem; height: 3.5rem; border-radius: 999px;
+    background: var(--color-forest); color: var(--color-ivory); font-size: 1.6rem; margin-bottom: 1rem;
+  }
+  .booking__done h3 { font-size: var(--step-2); margin-bottom: 0.75rem; }
+  .booking__done-main { font-weight: 700; margin-bottom: 0.5rem; }
+  .booking__done-sub { color: var(--color-ink-soft); max-width: 34rem; margin: 0 auto 2rem; line-height: 1.7; }
+  .booking__done .summary { text-align: left; max-width: 28rem; margin-inline: auto 2rem; margin-inline: auto; margin-bottom: 1.5rem; }
+</style>
+
+<script>
+  import { initBookingCalendar } from '../scripts/booking-calendar.ts';
+  initBookingCalendar();
+  document.addEventListener('astro:page-load', () => initBookingCalendar());
+</script>

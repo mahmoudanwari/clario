@@ -1,0 +1,162 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+import { href as routeHref } from '../i18n/config.ts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const strings = t(lang);
+---
+
+<dialog id="cookie-dialog" class="cookie-dialog" aria-labelledby="cookie-dialog-title">
+  <form method="dialog" class="cookie-dialog__form">
+    <header class="cookie-dialog__header">
+      <h2 id="cookie-dialog-title">{strings.cookies.title}</h2>
+      <button type="submit" value="close" class="cookie-dialog__close" aria-label={strings.cookies.close}>×</button>
+    </header>
+
+    <p class="cookie-dialog__intro">{strings.cookies.intro}</p>
+
+    <ul class="cookie-dialog__list">
+      <li class="cookie-row">
+        <div>
+          <p class="cookie-row__title">{strings.cookies.necessary}</p>
+          <p class="cookie-row__desc">{strings.cookies.necessaryDesc}</p>
+        </div>
+        <span class="cookie-row__badge">{strings.cookies.notUsed}</span>
+      </li>
+      <li class="cookie-row">
+        <div>
+          <label class="cookie-row__title" for="pref-motion">{strings.cookies.preferences}</label>
+          <p class="cookie-row__desc">{strings.cookies.preferencesDesc}</p>
+        </div>
+        <input type="checkbox" id="pref-motion" data-pref-toggle class="cookie-row__switch" />
+      </li>
+      <li class="cookie-row">
+        <div>
+          <p class="cookie-row__title">{strings.cookies.analytics}</p>
+          <p class="cookie-row__desc">{strings.cookies.analyticsDesc}</p>
+        </div>
+        <span class="cookie-row__badge">{strings.cookies.alwaysOff}</span>
+      </li>
+      <li class="cookie-row">
+        <div>
+          <p class="cookie-row__title">{strings.cookies.marketing}</p>
+          <p class="cookie-row__desc">{strings.cookies.marketingDesc}</p>
+        </div>
+        <span class="cookie-row__badge">{strings.cookies.alwaysOff}</span>
+      </li>
+    </ul>
+
+    <p
+      class="cookie-dialog__status"
+      role="status"
+      data-cookie-status
+      data-saved-text={strings.cookies.saved}
+      data-cleared-text={strings.cookies.cleared}
+      aria-live="polite"
+    ></p>
+
+    <footer class="cookie-dialog__footer">
+      <a href={routeHref(lang, 'cookies')} class="link-underline cookie-dialog__more">{strings.cookies.more}</a>
+      <div class="cookie-dialog__actions">
+        <button type="button" class="btn btn-ghost" data-clear-prefs>{strings.cookies.clear}</button>
+        <button type="submit" value="save" class="btn" data-save-prefs>{strings.cookies.save}</button>
+      </div>
+    </footer>
+  </form>
+</dialog>
+
+<style>
+  .cookie-dialog {
+    width: min(34rem, calc(100vw - 2rem));
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    box-shadow: 0 30px 70px -20px rgb(14 36 30 / 0.4);
+  }
+  .cookie-dialog::backdrop { background: rgb(14 36 30 / 0.5); backdrop-filter: blur(2px); }
+  .cookie-dialog__form { padding: 1.75rem; display: flex; flex-direction: column; gap: 1.1rem; max-height: 85vh; overflow-y: auto; }
+  .cookie-dialog__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .cookie-dialog__header h2 { font-size: var(--step-1); margin: 0; }
+  .cookie-dialog__close {
+    width: 2.25rem; height: 2.25rem; border-radius: 999px; border: 1px solid var(--color-line);
+    background: transparent; font-size: 1.3rem; line-height: 1; cursor: pointer; color: var(--color-ink-soft);
+  }
+  .cookie-dialog__intro { color: var(--color-ink-soft); font-size: 0.92rem; line-height: 1.6; }
+  .cookie-dialog__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+  .cookie-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    padding: 0.9rem; border: 1px solid var(--color-line); border-radius: var(--radius-sm);
+  }
+  .cookie-row__title { font-weight: 700; margin: 0 0 0.3rem; font-size: 0.95rem; }
+  .cookie-row__desc { margin: 0; font-size: 0.84rem; color: var(--color-ink-soft); line-height: 1.5; }
+  .cookie-row__badge {
+    flex-shrink: 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 0.3rem 0.6rem; border-radius: 999px; background: var(--color-mist); color: var(--color-ink-soft);
+  }
+  .cookie-row__switch { flex-shrink: 0; width: 2.75rem; height: 1.5rem; accent-color: var(--color-forest); cursor: pointer; }
+
+  .cookie-dialog__status { min-height: 1.2rem; font-size: 0.85rem; font-weight: 650; color: var(--color-forest); }
+  .cookie-dialog__footer { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; }
+  .cookie-dialog__more { font-size: 0.85rem; }
+  .cookie-dialog__actions { display: flex; gap: 0.6rem; }
+</style>
+
+<script>
+  function initCookieDialog() {
+    const dialog = document.getElementById('cookie-dialog') as HTMLDialogElement | null;
+    const toggle = document.getElementById('pref-motion') as HTMLInputElement | null;
+    const status = document.querySelector<HTMLElement>('[data-cookie-status]');
+    const clearBtn = document.querySelector<HTMLButtonElement>('[data-clear-prefs]');
+    const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-prefs]');
+    if (!dialog || !toggle) return;
+
+    const SAVED_KEY = 'clario-cookie-prefs-seen';
+
+    const openers = document.querySelectorAll<HTMLElement>('[data-open-cookie-prefs]');
+    openers.forEach((btn) => {
+      if (btn.dataset.wired) return;
+      btn.dataset.wired = 'true';
+      btn.addEventListener('click', () => {
+        try {
+          toggle.checked = localStorage.getItem('clario-motion') !== null || localStorage.getItem(SAVED_KEY) !== null;
+        } catch {
+          toggle.checked = false;
+        }
+        if (status) status.textContent = '';
+        dialog.showModal();
+      });
+    });
+
+    saveBtn?.addEventListener('click', () => {
+      try {
+        if (toggle.checked) {
+          localStorage.setItem(SAVED_KEY, '1');
+        } else {
+          localStorage.removeItem(SAVED_KEY);
+          localStorage.removeItem('clario-motion');
+        }
+      } catch {
+        /* storage unavailable — nothing to persist this session */
+      }
+      if (status) status.textContent = status.dataset.savedText ?? '';
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      try {
+        localStorage.removeItem('clario-motion');
+        localStorage.removeItem(SAVED_KEY);
+      } catch {
+        /* nothing to clear */
+      }
+      toggle.checked = false;
+      if (status) status.textContent = status.dataset.clearedText ?? '';
+    });
+  }
+
+  initCookieDialog();
+  document.addEventListener('astro:page-load', initCookieDialog);
+</script>

@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { locales, href, type Locale } from '../../../i18n/config.ts';
+import { t } from '../../../i18n/ui.ts';
+import { legal, type LegalDoc } from '../../../content/legal.ts';
+
+export function getStaticPaths() {
+  const slugs: Record<LegalDoc, string> = {
+    privacy: 'privacy',
+    cookies: 'cookies',
+    terms: 'terms',
+    notice: 'legal-notice',
+  };
+  return locales.flatMap((lang) =>
+    (Object.keys(slugs) as LegalDoc[]).map((doc) => ({
+      params: { lang, doc: slugs[doc] },
+      props: { doc },
+    }))
+  );
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const { doc } = Astro.props as { doc: LegalDoc };
+const copy = legal[lang][doc];
+const strings = t(lang);
+
+const otherDocs: { doc: LegalDoc; route: 'privacy' | 'cookies' | 'terms' | 'notice'; label: string }[] = [
+  { doc: 'privacy', route: 'privacy', label: strings.footer.privacy },
+  { doc: 'cookies', route: 'cookies', label: strings.footer.cookies },
+  { doc: 'terms', route: 'terms', label: strings.footer.terms },
+  { doc: 'notice', route: 'notice', label: strings.footer.notice },
+];
+---
+
+<BaseLayout lang={lang} title={copy.meta.title} description={copy.meta.description}>
+  <section class="legal section">
+    <div class="container-x legal__grid">
+      <article class="legal__body prose-clario">
+        <p class="eyebrow">{copy.eyebrow}</p>
+        <h1 class="legal__title font-display">{copy.title}</h1>
+        <p class="legal__updated">{copy.updated}</p>
+        <p class="lede legal__intro">{copy.intro}</p>
+
+        {copy.sections.map((section) => (
+          <section class="legal__section">
+            <h2>{section.heading}</h2>
+            {section.body.map((p) => <p>{p}</p>)}
+            {section.list && (
+              <ul>
+                {section.list.map((item) => <li>{item}</li>)}
+              </ul>
+            )}
+          </section>
+        ))}
+
+        <aside class="legal__disclaimer">
+          <p>{copy.disclaimer}</p>
+        </aside>
+      </article>
+
+      <nav class="legal__nav" aria-label={strings.footer.legal}>
+        <h2>{strings.footer.legal}</h2>
+        <ul>
+          {otherDocs.map((item) => (
+            <li>
+              <a
+                href={href(lang, item.route)}
+                class="link-underline"
+                aria-current={item.doc === doc ? 'page' : undefined}
+              >{item.label}</a>
+            </li>
+          ))}
+          <li><a href={href(lang, 'demo')} class="link-underline">{strings.nav.demo}</a></li>
+          <li><button type="button" class="legal__nav-button link-underline" data-open-cookie-prefs>{strings.footer.cookiePrefs}</button></li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal__grid { display: grid; gap: 3rem; align-items: start; }
+  @media (min-width: 64rem) { .legal__grid { grid-template-columns: 1.6fr 0.5fr; gap: 4rem; } }
+  .legal__title { font-size: var(--step-4); margin: 0.75rem 0 0.5rem; }
+  .legal__updated { font-size: 0.82rem; color: var(--color-ink-soft); margin-bottom: 1.5rem; }
+  .legal__intro { margin-bottom: 2.5rem; }
+  .legal__section { margin-bottom: 2rem; }
+  .legal__section h2 { font-size: var(--step-1); margin-top: 2.5rem; margin-bottom: 0.75rem; }
+
+  .legal__disclaimer {
+    margin-top: 3rem;
+    padding: 1.25rem 1.5rem;
+    border-left: 3px solid var(--color-clay);
+    background: var(--color-sand-soft);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .legal__disclaimer p { margin: 0; font-size: 0.88rem; color: var(--color-clay); line-height: 1.65; }
+
+  .legal__nav { position: sticky; top: 7rem; }
+  .legal__nav h2 { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-clay); margin-bottom: 1rem; }
+  .legal__nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+  .legal__nav a, .legal__nav-button { color: var(--color-ink); text-decoration: none; font-size: 0.92rem; }
+  .legal__nav a[aria-current='page'] { color: var(--color-forest); font-weight: 700; background-size: 100% 1px; }
+  .legal__nav-button { background: none; border: 0; padding: 0; font: inherit; font-size: 0.92rem; cursor: pointer; text-align: left; }
+</style>

@@ -1,0 +1,47 @@
+---
+/**
+ * Reusable hero for inner (non-home) pages: eyebrow, title (HTML allowed via
+ * `set:html` on a trusted, locally-authored string), optional lede and a
+ * full-bleed image below the title.
+ */
+import type { Locale } from '../i18n/config.ts';
+import type { ImageFile } from '../data/images.ts';
+import Media from './Media.astro';
+
+interface Props {
+  lang: Locale;
+  eyebrow: string;
+  title: string;
+  lede?: string;
+  image?: ImageFile;
+  dark?: boolean;
+}
+const { lang, eyebrow, title, lede, image, dark = false } = Astro.props;
+---
+
+<section class={`page-hero ${dark ? 'on-dark surface-forest' : ''}`}>
+  <div class="container-x page-hero__head">
+    <p class="eyebrow" data-reveal="fade">{eyebrow}</p>
+    <h1 class="page-hero__title font-display" data-reveal="fade" set:html={title} />
+    {lede && <p class="lede page-hero__lede" data-reveal="fade">{lede}</p>}
+  </div>
+  {image && (
+    <div class="container-x">
+      <div class="page-hero__media" data-reveal="mask">
+        <Media file={image} lang={lang} class="page-hero__img" sizes="100vw" loading="eager" fetchpriority="high" fit="width" />
+      </div>
+    </div>
+  )}
+</section>
+
+<style>
+  .page-hero { padding-top: clamp(2.5rem, 2rem + 2vw, 4rem); padding-bottom: clamp(2.5rem, 2rem + 3vw, 4rem); }
+  .page-hero__head { max-width: 46rem; display: flex; flex-direction: column; gap: 1.1rem; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3rem); }
+  .page-hero__title { font-size: var(--step-4); color: var(--color-ink); }
+  .on-dark .page-hero__title { color: var(--color-ivory); }
+  .page-hero__title :global(em) { font-style: italic; color: var(--color-clay); }
+  .on-dark .page-hero__title :global(em) { color: var(--color-sand); }
+  .page-hero__lede { font-size: var(--step-1); }
+  .page-hero__media { border-radius: var(--radius-xl); overflow: hidden; }
+  .page-hero__img { width: 100%; height: auto; display: block; }
+</style>

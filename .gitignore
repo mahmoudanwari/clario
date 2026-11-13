@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.log
+
+# Your original, full-size supplied images. The build consumes the optimised
+# copies in src/assets/clario/ instead, so these stay local and out of history.
+clairo images/

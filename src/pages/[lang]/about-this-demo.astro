@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import { localeStaticPaths, href } from '../../i18n/config.ts';
+import { t } from '../../i18n/ui.ts';
+import { pages } from '../../content/pages.ts';
+import { site } from '../../data/site.ts';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const { lang } = Astro.params;
+const strings = t(lang);
+const copy = pages[lang].demo;
+---
+
+<BaseLayout lang={lang} title={copy.meta.title} description={copy.meta.description}>
+  <PageHero lang={lang} eyebrow={copy.eyebrow} title={copy.title} lede={copy.lede} />
+
+  <section class="section section--top-tight">
+    <div class="container-x">
+      <ol class="demo-list" data-reveal-group>
+        {copy.sections.map((section, i) => (
+          <li class="demo-item" data-reveal="fade">
+            <span class="demo-item__num">{String(i + 1).padStart(2, '0')}</span>
+            <div>
+              <h2>{section.title}</h2>
+              <p>{section.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section surface-forest on-dark">
+    <div class="container-x built">
+      <div>
+        <SectionHeading eyebrow={copy.builtTitle}>{copy.builtTitle}</SectionHeading>
+        <ul class="built__list" data-reveal-group>
+          {copy.built.map((item) => <li data-reveal="fade">{item}</li>)}
+        </ul>
+      </div>
+      <div class="built__credit">
+        <h3>{copy.creditTitle}</h3>
+        <p>{copy.creditText}</p>
+        <a href={site.creator.url} target="_blank" rel="noopener" class="btn btn-sand">
+          {copy.creditLink}
+          <span class="btn-arrow" aria-hidden="true">→</span>
+          <span class="sr-only-focusable">{strings.a11y.externalLink}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="container-x demo-links">
+      <a href={href(lang, 'privacy')} class="btn btn-ghost">{strings.footer.privacy}</a>
+      <a href={href(lang, 'cookies')} class="btn btn-ghost">{strings.footer.cookies}</a>
+      <a href={href(lang, 'terms')} class="btn btn-ghost">{strings.footer.terms}</a>
+      <a href={href(lang, 'notice')} class="btn btn-ghost">{strings.footer.notice}</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section--top-tight { padding-top: 0; }
+  .demo-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2rem; max-width: 52rem; }
+  .demo-item { display: flex; gap: 1.25rem; border-top: 1px solid var(--color-line); padding-top: 1.5rem; }
+  .demo-item__num { font-family: var(--font-display); color: var(--color-clay); font-size: 1.2rem; flex-shrink: 0; }
+  .demo-item h2 { font-size: var(--step-1); margin-bottom: 0.5rem; }
+  .demo-item p { color: var(--color-ink-soft); line-height: 1.7; margin: 0; }
+
+  .built { display: grid; gap: 3rem; }
+  @media (min-width: 64rem) { .built { grid-template-columns: 1.3fr 0.8fr; gap: 4rem; } }
+  .built__list { list-style: none; margin: 2rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .built__list li { position: relative; padding-left: 1.5rem; color: rgb(246 242 233 / 0.82); font-size: 0.95rem; }
+  .built__list li::before { content: ''; position: absolute; left: 0; top: 0.75em; width: 0.65rem; height: 1px; background: var(--color-sand); }
+  .built__credit h3 { font-size: 1.1rem; color: var(--color-sand); margin-bottom: 0.6rem; }
+  .built__credit p { color: rgb(246 242 233 / 0.8); margin-bottom: 1.5rem; }
+
+  .demo-links { display: flex; flex-wrap: wrap; gap: 0.9rem; }
+</style>

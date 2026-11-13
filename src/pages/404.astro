@@ -1,0 +1,76 @@
+---
+/**
+ * Custom 404. Static hosting serves one 404 for every path, so this page is
+ * trilingual: all three languages are shown at once rather than guessing.
+ */
+import '../styles/global.css';
+import { locales, localeMeta, href } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+import { site } from '../data/site.ts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 — {site.name}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="notfound-body">
+    <main class="notfound">
+      <div class="container-x notfound__inner">
+        <a href="/en/" class="notfound__wordmark">
+          <span class="notfound__wordmark-main">{site.wordmark}</span>
+          <span class="notfound__wordmark-sub">{site.descriptor}</span>
+        </a>
+
+        <h1 class="notfound__code font-display">404</h1>
+
+        <div class="notfound__langs">
+          {locales.map((lang) => {
+            const strings = t(lang);
+            return (
+              <section class="notfound__lang" lang={localeMeta[lang].htmlLang}>
+                <h2 class="notfound__title font-display">{strings.notFound.title}</h2>
+                <p class="notfound__text">{strings.notFound.text}</p>
+                <a href={href(lang, 'home')} class="btn btn-sand notfound__btn">
+                  {strings.cta.backHome}
+                  <span class="btn-arrow" aria-hidden="true">→</span>
+                </a>
+              </section>
+            );
+          })}
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+
+<style>
+  .notfound-body { background: var(--color-forest-deep); }
+  .notfound {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding-block: 4rem;
+    background:
+      radial-gradient(120% 80% at 80% 0%, rgb(145 182 162 / 0.18), transparent 60%),
+      radial-gradient(90% 70% at 0% 100%, rgb(214 165 116 / 0.12), transparent 60%);
+    color: var(--color-ivory);
+    text-align: center;
+  }
+  .notfound__wordmark { display: inline-flex; flex-direction: column; text-decoration: none; color: var(--color-ivory); line-height: 1; }
+  .notfound__wordmark-main { font-family: var(--font-display); font-size: 1.5rem; }
+  .notfound__wordmark-sub { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.26em; color: var(--color-sand); margin-top: 0.2rem; }
+
+  .notfound__code { font-size: clamp(5rem, 18vw, 11rem); color: var(--color-sand); line-height: 1; margin: 2rem 0 1rem; opacity: 0.9; }
+
+  .notfound__langs { display: grid; gap: 2.5rem; max-width: 62rem; margin-inline: auto; }
+  @media (min-width: 56rem) { .notfound__langs { grid-template-columns: repeat(3, 1fr); gap: 2rem; } }
+  .notfound__lang { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding-top: 1.5rem; border-top: 1px solid var(--color-line-light); }
+  .notfound__title { font-size: var(--step-1); }
+  .notfound__text { font-size: 0.88rem; color: rgb(246 242 233 / 0.72); line-height: 1.6; max-width: 22rem; }
+  .notfound__btn { margin-top: 0.5rem; }
+</style>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://clario.mahmoudanwari.com/sitemap-index.xml

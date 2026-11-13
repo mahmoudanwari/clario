@@ -1,0 +1,195 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import SectionHeading from '../../../components/SectionHeading.astro';
+import ServiceCard from '../../../components/ServiceCard.astro';
+import FaqAccordion from '../../../components/FaqAccordion.astro';
+import Media from '../../../components/Media.astro';
+import { locales, href, localeMeta, type Locale } from '../../../i18n/config.ts';
+import { t } from '../../../i18n/ui.ts';
+import { services, getService } from '../../../data/services.ts';
+import { pricing, formatPrice } from '../../../data/pricing.ts';
+import type { ServiceId } from '../../../data/pricing.ts';
+
+export function getStaticPaths() {
+  const slugs: Record<ServiceId, string> = {
+    office: 'office-cleaning',
+    deep: 'deep-cleaning',
+    window: 'window-cleaning',
+    sanitation: 'workplace-sanitation',
+  };
+  return locales.flatMap((lang) =>
+    services.map((service) => ({
+      params: { lang, service: slugs[service.id] },
+      props: { serviceId: service.id },
+    }))
+  );
+}
+
+const { lang } = Astro.params as { lang: Locale };
+const { serviceId } = Astro.props as { serviceId: ServiceId };
+const service = getService(serviceId);
+const copy = service.copy[lang];
+const strings = t(lang);
+const rule = pricing[serviceId];
+const price = formatPrice(rule.ratePerM2, localeMeta[lang].intl);
+const unit = rule.basis === 'glass' ? strings.pricing.perM2Glass : strings.pricing.perM2Floor;
+const related = service.related.map((id) => getService(id));
+---
+
+<BaseLayout lang={lang} title={copy.meta.title} description={copy.meta.description}>
+  <nav class="container-x breadcrumb" aria-label={strings.a11y.breadcrumb}>
+    <ol>
+      <li><a href={href(lang, 'home')} class="link-underline">{strings.nav.home}</a></li>
+      <li><a href={href(lang, 'services')} class="link-underline">{strings.nav.services}</a></li>
+      <li aria-current="page">{copy.name}</li>
+    </ol>
+  </nav>
+
+  <PageHero lang={lang} eyebrow={copy.eyebrow} title={copy.heroTitle} lede={copy.heroLede} image={service.hero} />
+
+  <!-- Intro + price card -->
+  <section class="section section--top-tight">
+    <div class="container-x svc-intro">
+      <div class="svc-intro__text">
+        <h2 class="svc-intro__title font-display">{copy.introTitle}</h2>
+        {copy.intro.map((p) => <p>{p}</p>)}
+      </div>
+      <aside class="price-card" data-reveal="fade">
+        <span class="demo-chip">{strings.demo.illustrative}</span>
+        <p class="price-card__value">
+          <span class="price-card__from">{strings.pricing.from}</span>
+          <strong>{price}</strong>
+        </p>
+        <p class="price-card__unit">{unit}</p>
+        <p class="price-card__note">{strings.pricing.note}</p>
+        <a href={href(lang, 'quote')} class="btn">
+          {strings.cta.quote}
+          <span class="btn-arrow" aria-hidden="true">→</span>
+        </a>
+      </aside>
+    </div>
+  </section>
+
+  <!-- What's included -->
+  <section class="section surface-forest on-dark">
+    <div class="container-x">
+      <SectionHeading eyebrow={copy.eyebrow}>{copy.includesTitle}</SectionHeading>
+      <ul class="includes" data-reveal-group>
+        {copy.includes.map((item) => (
+          <li class="includes__item" data-reveal="fade">
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Benefits + detail image -->
+  <section class="section">
+    <div class="container-x benefits">
+      <div class="benefits__media" data-reveal="mask">
+        <Media file={service.detail} lang={lang} class="benefits__img" sizes="(min-width: 64rem) 38vw, 90vw" />
+      </div>
+      <div class="benefits__text">
+        <SectionHeading eyebrow={strings.nav.services}>{copy.benefitsTitle}</SectionHeading>
+        <ul class="benefits__list" data-reveal-group>
+          {copy.benefits.map((b) => (
+            <li data-reveal="fade">
+              <strong>{b.title}</strong>
+              <span>{b.text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Process -->
+  <section class="section section--tight">
+    <div class="container-x">
+      <SectionHeading eyebrow={strings.nav.services} align="center">{copy.introTitle}</SectionHeading>
+      <ol class="svc-process" data-reveal-group>
+        {copy.process.map((step, i) => (
+          <li data-reveal="fade">
+            <span class="svc-process__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  {copy.faqs.length > 0 && (
+    <section class="section section--tight">
+      <div class="container-x">
+        <FaqAccordion lang={lang} items={copy.faqs} />
+      </div>
+    </section>
+  )}
+
+  <!-- Related -->
+  <section class="section">
+    <div class="container-x">
+      <SectionHeading eyebrow={strings.related.title}>{strings.related.title}</SectionHeading>
+      <div class="related-grid" data-reveal-group>
+        {related.map((r) => <ServiceCard lang={lang} service={r} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .breadcrumb { padding-top: 1.5rem; }
+  .breadcrumb ol { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; font-size: 0.82rem; color: var(--color-ink-soft); }
+  .breadcrumb li + li::before { content: '/'; margin-right: 0.5rem; opacity: 0.5; }
+  .breadcrumb a { color: inherit; text-decoration: none; }
+  .breadcrumb [aria-current='page'] { color: var(--color-forest); font-weight: 650; }
+
+  .section--top-tight { padding-top: 0; }
+  .svc-intro { display: grid; gap: 2.5rem; align-items: start; }
+  @media (min-width: 64rem) { .svc-intro { grid-template-columns: 1.5fr 1fr; gap: 4rem; } }
+  .svc-intro__title { font-size: var(--step-2); margin-bottom: 1.2rem; }
+  .svc-intro__text p { color: var(--color-ink-soft); line-height: 1.7; margin-bottom: 1rem; max-width: 40rem; }
+
+  .price-card {
+    display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;
+    padding: 1.75rem; border-radius: var(--radius-lg);
+    background: var(--color-mist); border: 1px solid var(--color-line);
+    position: sticky; top: 7rem;
+  }
+  .price-card__value { display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.5rem; }
+  .price-card__from { font-size: 0.85rem; color: var(--color-ink-soft); }
+  .price-card__value strong { font-family: var(--font-display); font-size: var(--step-3); font-weight: 400; color: var(--color-forest); }
+  .price-card__unit { font-size: 0.88rem; color: var(--color-ink-soft); }
+  .price-card__note { font-size: 0.78rem; color: var(--color-ink-soft); line-height: 1.5; margin: 0.5rem 0 1rem; }
+
+  .includes { list-style: none; margin: 2.5rem 0 0; padding: 0; display: grid; gap: 2rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .includes { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .includes { grid-template-columns: repeat(3, 1fr); } }
+  .includes__item { border-top: 1px solid var(--color-line-light); padding-top: 1.1rem; }
+  .includes__item h3 { font-size: 1.05rem; margin-bottom: 0.4rem; color: var(--color-sand); }
+  .includes__item p { color: rgb(246 242 233 / 0.78); font-size: 0.92rem; line-height: 1.55; margin: 0; }
+
+  .benefits { display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 64rem) { .benefits { grid-template-columns: 0.9fr 1.1fr; } }
+  .benefits__media { border-radius: var(--radius-lg); overflow: hidden; }
+  .benefits__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .benefits__list { list-style: none; margin: 2rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 1.2rem; }
+  .benefits__list li { display: flex; flex-direction: column; gap: 0.25rem; border-top: 1px solid var(--color-line); padding-top: 1rem; }
+  .benefits__list strong { color: var(--color-forest); }
+  .benefits__list span { color: var(--color-ink-soft); font-size: 0.93rem; }
+
+  .svc-process { list-style: none; margin: 2.5rem 0 0; padding: 0; display: grid; gap: 2rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .svc-process { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .svc-process { grid-template-columns: repeat(4, 1fr); } }
+  .svc-process__num { font-family: var(--font-display); color: var(--color-clay); font-size: 1.3rem; }
+  .svc-process h3 { font-size: 1.02rem; margin: 0.5rem 0 0.4rem; }
+  .svc-process p { color: var(--color-ink-soft); font-size: 0.9rem; line-height: 1.55; margin: 0; }
+
+  .related-grid { display: grid; gap: 1.75rem; margin-top: 2.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .related-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>

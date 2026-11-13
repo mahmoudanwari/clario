@@ -1,0 +1,76 @@
+---
+import type { Locale } from '../i18n/config.ts';
+import { href } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+import { pricing, formatPrice } from '../data/pricing.ts';
+import { localeMeta } from '../i18n/config.ts';
+import type { Service } from '../data/services.ts';
+import Media from './Media.astro';
+
+interface Props { lang: Locale; service: Service }
+const { lang, service } = Astro.props;
+const copy = service.copy[lang];
+const strings = t(lang);
+const rule = pricing[service.id];
+const price = formatPrice(rule.ratePerM2, localeMeta[lang].intl);
+const perUnit = rule.basis === 'glass' ? strings.pricing.perM2Glass : strings.pricing.perM2Floor;
+---
+
+<a href={href(lang, service.route)} class="service-card" data-reveal="mask">
+  <div class="service-card__media">
+    <Media file={service.hero} lang={lang} class="service-card__img" sizes="(min-width: 64rem) 28vw, (min-width: 40rem) 45vw, 90vw" />
+    <span class="service-card__number">{service.number}</span>
+  </div>
+  <div class="service-card__body">
+    <h3 class="service-card__title font-display">{copy.name}</h3>
+    <p class="service-card__text">{copy.short}</p>
+    <p class="service-card__price">
+      <span class="service-card__price-from">{strings.pricing.from}</span> {price}
+      <span class="service-card__price-unit">{perUnit}</span>
+    </p>
+    <span class="service-card__cta link-underline">
+      {strings.cta.viewService}
+      <span aria-hidden="true">→</span>
+    </span>
+  </div>
+</a>
+
+<style>
+  .service-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--radius-lg);
+    background: var(--color-paper);
+    overflow: hidden;
+    box-shadow: 0 1px 0 var(--color-line);
+    transition: transform var(--dur-base) var(--ease-out-expo), box-shadow var(--dur-base);
+  }
+  .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 50px -28px rgb(14 36 30 / 0.35);
+  }
+  .service-card__media { position: relative; aspect-ratio: 3/2; overflow: hidden; }
+  .service-card__img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 900ms var(--ease-out-expo); }
+  .service-card:hover .service-card__img { transform: scale(1.06); }
+  .service-card__number {
+    position: absolute;
+    top: 0.9rem; left: 0.9rem;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-ivory);
+    background: rgb(14 36 30 / 0.55);
+    backdrop-filter: blur(3px);
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+  }
+  .service-card__body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
+  .service-card__title { font-size: var(--step-1); }
+  .service-card__text { color: var(--color-ink-soft); font-size: 0.93rem; line-height: 1.55; flex: 1; }
+  .service-card__price { font-weight: 700; color: var(--color-forest); font-size: 0.95rem; }
+  .service-card__price-from { font-weight: 500; color: var(--color-ink-soft); text-transform: lowercase; }
+  .service-card__price-unit { display: block; font-weight: 500; color: var(--color-ink-soft); font-size: 0.78rem; margin-top: 0.1rem; }
+  .service-card__cta { font-weight: 700; font-size: 0.88rem; color: var(--color-forest); margin-top: 0.3rem; }
+</style>

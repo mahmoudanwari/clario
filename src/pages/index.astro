@@ -1,0 +1,61 @@
+---
+/**
+ * Root entry. Static hosting can't negotiate language server-side, so this
+ * page redirects: instantly via JS when the visitor's browser language
+ * matches NL or FR, otherwise to English. A meta refresh and a visible set
+ * of links cover no-JS and crawler cases.
+ */
+import { site } from '../data/site.ts';
+import { locales, localeMeta } from '../i18n/config.ts';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.name}</title>
+    <meta name="description" content="Clario Cleaning — a fictional multilingual commercial cleaning brand concept. Choose your language." />
+    <link rel="canonical" href={`${site.url}/en/`} />
+    <meta http-equiv="refresh" content="0; url=/en/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {locales.map((l) => (
+      <link rel="alternate" hreflang={localeMeta[l].intl} href={`${site.url}/${l}/`} />
+    ))}
+    <script is:inline>
+      (function () {
+        var supported = ['en', 'nl', 'fr'];
+        var langs = navigator.languages || [navigator.language || 'en'];
+        var pick = 'en';
+        for (var i = 0; i < langs.length; i++) {
+          var code = String(langs[i]).slice(0, 2).toLowerCase();
+          if (supported.indexOf(code) !== -1) { pick = code; break; }
+        }
+        location.replace('/' + pick + '/');
+      })();
+    </script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f6f2e9;
+        color: #222a27;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+        text-align: center;
+      }
+      a { color: #1f4a3c; font-weight: 700; margin: 0 0.6rem; }
+    </style>
+  </head>
+  <body>
+    <div>
+      <p>Clario Cleaning — portfolio demo</p>
+      <p>
+        {locales.map((l) => (
+          <a href={`/${l}/`}>{localeMeta[l].name}</a>
+        ))}
+      </p>
+    </div>
+  </body>
+</html>

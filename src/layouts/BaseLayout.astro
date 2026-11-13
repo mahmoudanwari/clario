@@ -1,0 +1,88 @@
+---
+import '../styles/global.css';
+import Seo from '../components/Seo.astro';
+import DemoRibbon from '../components/DemoRibbon.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import FloatingQuote from '../components/FloatingQuote.astro';
+import CookiePreferences from '../components/CookiePreferences.astro';
+import { localeMeta, type Locale } from '../i18n/config.ts';
+
+interface Props {
+  lang: Locale;
+  title: string;
+  description: string;
+  /** Hide the floating quote CTA (used on the quote page itself). */
+  hideFloatingQuote?: boolean;
+}
+
+const { lang, title, description, hideFloatingQuote = false } = Astro.props;
+const htmlLang = localeMeta[lang].htmlLang;
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f4a3c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <Seo lang={lang} title={title} description={description} path={Astro.url.pathname} />
+
+    <!--
+      Runs before first paint: decides the motion state (stored choice, else
+      prefers-reduced-motion) and applies it immediately, so there is never a
+      flash of animated content for people who opted out — and no flash of
+      un-revealed content for people who didn't.
+    -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('clario-motion');
+          var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          var on = stored ? stored === 'on' : !reduce;
+          document.documentElement.dataset.motion = on ? 'on' : 'off';
+          if (on) document.documentElement.classList.add('js-motion');
+        } catch (e) {
+          document.documentElement.dataset.motion = 'on';
+          document.documentElement.classList.add('js-motion');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link sr-only-focusable">
+      <slot name="skip-label">Skip to main content</slot>
+    </a>
+
+    <DemoRibbon lang={lang} />
+    <Nav lang={lang} />
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer lang={lang} />
+    {!hideFloatingQuote && <FloatingQuote lang={lang} />}
+    <CookiePreferences lang={lang} />
+
+    <script>
+      import '../scripts/reveal.ts';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    background: var(--color-forest);
+    color: var(--color-ivory);
+    padding: 0.7rem 1.1rem;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+  }
+  main:focus { outline: none; }
+</style>

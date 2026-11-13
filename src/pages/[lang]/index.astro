@@ -1,0 +1,408 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import BeforeAfterSlider from '../../components/BeforeAfterSlider.astro';
+import AreasMap from '../../components/AreasMap.astro';
+import FaqAccordion from '../../components/FaqAccordion.astro';
+import Media from '../../components/Media.astro';
+import { localeStaticPaths, href, localeMeta } from '../../i18n/config.ts';
+import { t } from '../../i18n/ui.ts';
+import { home } from '../../content/home.ts';
+import { services } from '../../data/services.ts';
+import { pricing, formatPrice } from '../../data/pricing.ts';
+
+export function getStaticPaths() {
+  return localeStaticPaths();
+}
+
+const { lang } = Astro.params;
+const strings = t(lang);
+const copy = home[lang];
+const intl = localeMeta[lang].intl;
+---
+
+<BaseLayout lang={lang} title={copy.meta.title} description={copy.meta.description}>
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero__media" aria-hidden="false">
+      <Media file="home-hero-team-office" lang={lang} class="hero__img" sizes="100vw" loading="eager" fetchpriority="high" />
+      <div class="hero__scrim"></div>
+    </div>
+
+    <div class="container-x hero__content">
+      <p class="eyebrow on-dark" data-reveal="fade">{copy.hero.eyebrow}</p>
+      <h1 class="hero__title font-display" data-reveal="fade">
+        {copy.hero.titleA}<br /><em class="accent-italic">{copy.hero.titleB}</em>
+      </h1>
+      <p class="lede hero__lede on-dark" data-reveal="fade">{copy.hero.lede}</p>
+      <div class="hero__actions" data-reveal="fade">
+        <a href={href(lang, 'quote')} class="btn btn-sand">
+          {strings.cta.quote}
+          <span class="btn-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href={href(lang, 'services')} class="btn btn-ghost on-dark">{strings.cta.explore}</a>
+      </div>
+      <p class="hero__caption on-dark" data-reveal="fade">{copy.hero.caption}</p>
+    </div>
+
+    <div class="hero__inset" data-reveal="mask">
+      <Media file="home-hero-detail-glass" lang={lang} class="hero__inset-img" sizes="22vw" />
+    </div>
+
+    <a href="#intro" class="hero__scroll" aria-label={strings.a11y.scrollDown}>
+      <span class="hero__scroll-line" aria-hidden="true"></span>
+    </a>
+  </section>
+
+  <!-- ================= INTRO ================= -->
+  <section class="section" id="intro">
+    <div class="container-x intro">
+      <div class="intro__text">
+        <SectionHeading eyebrow={copy.intro.eyebrow}>
+          <Fragment set:html={copy.intro.title} />
+        </SectionHeading>
+        {copy.intro.body.map((p) => <p class="intro__p">{p}</p>)}
+        <p class="intro__signature">{copy.intro.signature}</p>
+      </div>
+      <div class="intro__media" data-reveal-group>
+        <div class="intro__media-main" data-reveal="mask">
+          <Media file="home-intro-reception" lang={lang} class="intro__img" sizes="(min-width: 64rem) 32vw, 80vw" />
+        </div>
+        <div class="intro__media-detail" data-reveal="mask">
+          <Media file="home-intro-detail-cart" lang={lang} class="intro__img" sizes="(min-width: 64rem) 18vw, 50vw" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SERVICES ================= -->
+  <section class="section section--tight">
+    <div class="container-x">
+      <SectionHeading eyebrow={copy.services.eyebrow} align="center">
+        <Fragment set:html={copy.services.title} />
+        <p class="lede" slot="lede" style="margin-inline:auto;text-align:center">{copy.services.lede}</p>
+      </SectionHeading>
+      <div class="services-grid" data-reveal-group>
+        {services.map((service) => (
+          <ServiceCard lang={lang} service={service} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WHY CLARIO ================= -->
+  <section class="section surface-forest on-dark">
+    <div class="container-x why">
+      <SectionHeading eyebrow={copy.why.eyebrow} class="why__heading">
+        <Fragment set:html={copy.why.title} />
+      </SectionHeading>
+      <ul class="why__grid" data-reveal-group>
+        {copy.why.items.map((item, i) => (
+          <li class="why__item" data-reveal="fade">
+            <span class="why__index">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= BEFORE / AFTER ================= -->
+  <section class="section">
+    <div class="container-x ba-section">
+      <SectionHeading eyebrow={copy.beforeAfter.eyebrow}>
+        <Fragment set:html={copy.beforeAfter.title} />
+        <p class="lede" slot="lede">{copy.beforeAfter.lede}</p>
+      </SectionHeading>
+      <BeforeAfterSlider lang={lang} before="before-after-meeting-room-before" after="before-after-meeting-room-after" />
+    </div>
+  </section>
+
+  <!-- ================= SUSTAINABILITY ================= -->
+  <section class="section surface-forest on-dark">
+    <div class="container-x sustain">
+      <div class="sustain__text">
+        <SectionHeading eyebrow={copy.sustainability.eyebrow}>
+          <Fragment set:html={copy.sustainability.title} />
+          <p class="lede" slot="lede">{copy.sustainability.lede}</p>
+        </SectionHeading>
+        <ul class="sustain__points" data-reveal-group>
+          {copy.sustainability.points.map((p) => (
+            <li data-reveal="fade"><strong>{p.title}</strong><span>{p.text}</span></li>
+          ))}
+        </ul>
+        <a href={href(lang, 'sustainability')} class="btn btn-ghost on-dark">{strings.cta.sustainability}</a>
+      </div>
+      <div class="sustain__media" data-reveal="mask">
+        <Media file="home-sustainability-refill" lang={lang} class="sustain__img" sizes="(min-width: 64rem) 36vw, 90vw" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROCESS ================= -->
+  <section class="section">
+    <div class="container-x">
+      <SectionHeading eyebrow={copy.process.eyebrow} align="center">
+        <Fragment set:html={copy.process.title} />
+      </SectionHeading>
+      <ol class="process" data-reveal-group>
+        {copy.process.steps.map((step, i) => (
+          <li class="process__step" data-reveal="fade">
+            <span class="process__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= PRICING PREVIEW ================= -->
+  <section class="section section--tight">
+    <div class="container-x">
+      <SectionHeading eyebrow={copy.pricing.eyebrow}>
+        <Fragment set:html={copy.pricing.title} />
+        <p class="lede" slot="lede">{copy.pricing.lede}</p>
+      </SectionHeading>
+      <div class="pricing-grid" data-reveal-group>
+        {services.map((service) => {
+          const rule = pricing[service.id];
+          const price = formatPrice(rule.ratePerM2, intl);
+          const unit = rule.basis === 'glass' ? strings.pricing.perM2Glass : strings.pricing.perM2Floor;
+          return (
+            <a href={href(lang, service.route)} class="pricing-card" data-reveal="fade">
+              <span class="pricing-card__name">{service.copy[lang].name}</span>
+              <span class="pricing-card__price">
+                <span class="pricing-card__from">{strings.pricing.from}</span> {price}
+              </span>
+              <span class="pricing-card__unit">{unit}</span>
+            </a>
+          );
+        })}
+      </div>
+      <p class="pricing-note">{strings.pricing.note}</p>
+      <a href={href(lang, 'quote')} class="btn">
+        {strings.cta.quote}
+        <span class="btn-arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================= SERVICE AREAS ================= -->
+  <section class="section section--tight">
+    <div class="container-x">
+      <SectionHeading eyebrow={copy.areas.eyebrow} align="center">
+        <Fragment set:html={copy.areas.title} />
+        <p class="lede" slot="lede" style="margin-inline:auto;text-align:center">{copy.areas.lede}</p>
+      </SectionHeading>
+      <AreasMap lang={lang} />
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIALS & STATS ================= -->
+  <section class="section surface-forest on-dark">
+    <div class="container-x">
+      <SectionHeading eyebrow={copy.testimonials.eyebrow}>
+        <Fragment set:html={copy.testimonials.title} />
+      </SectionHeading>
+      <p class="demo-chip testimonials__chip">{strings.demo.sample}</p>
+      <p class="testimonials__note">{copy.testimonials.note}</p>
+      <div class="testimonials-grid" data-reveal-group>
+        {copy.testimonials.items.map((item) => (
+          <blockquote class="testimonial" data-reveal="fade">
+            <p>&ldquo;{item.quote}&rdquo;</p>
+            <footer><strong>{item.role}</strong><span>{item.org}</span></footer>
+          </blockquote>
+        ))}
+      </div>
+
+      <div class="stats-grid" data-reveal-group>
+        {copy.stats.items.map((stat) => (
+          <div class="stat" data-reveal="fade">
+            <span class="stat__value font-display">{stat.value}</span>
+            <span class="stat__label">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+      <p class="testimonials__note">{copy.stats.note}</p>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section section--tight">
+    <div class="container-x">
+      <FaqAccordion lang={lang} items={copy.faq.items} />
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="section final-cta">
+    <div class="container-x final-cta__inner">
+      <SectionHeading eyebrow={copy.final.eyebrow} align="center">
+        <Fragment set:html={copy.final.title} />
+        <p class="lede" slot="lede" style="margin-inline:auto;text-align:center">{copy.final.lede}</p>
+      </SectionHeading>
+      <div class="final-cta__actions">
+        <a href={href(lang, 'quote')} class="btn btn-sand">
+          {strings.cta.quote}
+          <span class="btn-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href={href(lang, 'book')} class="btn btn-ghost">{strings.cta.book}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero { position: relative; min-height: 92vh; display: flex; align-items: flex-end; overflow: hidden; color: var(--color-ivory); }
+  .hero__media { position: absolute; inset: 0; z-index: 0; }
+  .hero__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* Phones: the subject fills the frame, so the copy needs a stronger,
+     mostly vertical scrim to stay readable (≥ 4.5:1 over the image). */
+  .hero__scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgb(14 36 30 / 0.92) 0%, rgb(14 36 30 / 0.78) 38%, rgb(14 36 30 / 0.45) 70%, rgb(14 36 30 / 0.25) 100%);
+  }
+  @media (min-width: 56rem) {
+    .hero__scrim {
+      /* The headline runs to roughly 45% of the width, so the gradient has to
+         stay dense that far before opening up over the photograph. */
+      background: linear-gradient(100deg, rgb(14 36 30 / 0.9) 0%, rgb(14 36 30 / 0.78) 38%, rgb(14 36 30 / 0.4) 60%, rgb(14 36 30 / 0.08) 82%),
+                  linear-gradient(to top, rgb(14 36 30 / 0.55), transparent 50%);
+    }
+  }
+  .hero__content { position: relative; z-index: 1; padding-block: clamp(6rem, 10vh, 10rem) clamp(4rem, 8vh, 6rem); max-width: 42rem; }
+  .hero__title { font-size: var(--step-5); color: var(--color-ivory); margin-top: 0.75rem; }
+  .hero__title em { color: var(--color-sand); }
+  .hero__lede { margin-top: 1.2rem; max-width: 34rem; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+  .hero__caption { margin-top: 2.5rem; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.7; }
+
+  .hero__inset {
+    display: none;
+    position: absolute;
+    right: clamp(1.5rem, 4vw, 4rem);
+    bottom: clamp(1.5rem, 4vw, 4rem);
+    width: clamp(10rem, 18vw, 16rem);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.5);
+    z-index: 1;
+  }
+  @media (min-width: 56rem) { .hero__inset { display: block; } }
+  .hero__inset-img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/5; display: block; }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    width: 2px;
+    height: 2.5rem;
+  }
+  .hero__scroll-line {
+    display: block;
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom, rgb(246 242 233 / 0.9), transparent);
+  }
+  .js-motion .hero__scroll-line { animation: scroll-hint 2.2s ease-in-out infinite; }
+  @keyframes scroll-hint { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+  /* ---------- Intro ---------- */
+  .intro { display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 64rem) { .intro { grid-template-columns: 1fr 0.9fr; gap: 4rem; } }
+  .intro__p { color: var(--color-ink-soft); margin-bottom: 1rem; line-height: 1.7; }
+  .intro__signature { font-style: italic; color: var(--color-ink-soft); font-size: 0.85rem; margin-top: 1rem; }
+  .intro__media { position: relative; }
+  .intro__media-main { border-radius: var(--radius-lg); overflow: hidden; }
+  .intro__media-detail {
+    position: relative;
+    width: 45%;
+    margin-top: -3rem;
+    margin-left: auto;
+    margin-right: -0.5rem;
+    border: 6px solid var(--color-ivory);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 20px 40px -20px rgb(14 36 30 / 0.3);
+  }
+  .intro__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ---------- Services grid ---------- */
+  .services-grid { display: grid; gap: 1.75rem; margin-top: 3rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 72rem) { .services-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ---------- Why ---------- */
+  .why__grid { list-style: none; margin: 3rem 0 0; padding: 0; display: grid; gap: 2rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .why__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .why__grid { grid-template-columns: repeat(4, 1fr); } }
+  .why__item { border-top: 1px solid var(--color-line-light); padding-top: 1.25rem; }
+  .why__index { font-family: var(--font-display); color: var(--color-sand); font-size: 1.3rem; }
+  .why__item h3 { font-size: 1.1rem; margin: 0.6rem 0 0.5rem; }
+  .why__item p { color: rgb(246 242 233 / 0.78); font-size: 0.92rem; line-height: 1.55; margin: 0; }
+
+  /* ---------- Sustainability ---------- */
+  .sustain { display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 64rem) { .sustain { grid-template-columns: 1fr 0.8fr; } }
+  .sustain__points { list-style: none; margin: 2rem 0; padding: 0; display: flex; flex-direction: column; gap: 1.1rem; }
+  .sustain__points li { display: flex; flex-direction: column; gap: 0.2rem; border-top: 1px solid var(--color-line-light); padding-top: 0.9rem; }
+  .sustain__points strong { color: var(--color-sand); font-size: 0.95rem; }
+  .sustain__points span { color: rgb(246 242 233 / 0.78); font-size: 0.92rem; }
+  .sustain__media { border-radius: var(--radius-lg); overflow: hidden; }
+  .sustain__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ---------- Process ---------- */
+  .process { list-style: none; margin: 3rem 0 0; padding: 0; display: grid; gap: 2rem; grid-template-columns: 1fr; counter-reset: step; }
+  @media (min-width: 40rem) { .process { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .process { grid-template-columns: repeat(4, 1fr); } }
+  .process__num { font-family: var(--font-display); color: var(--color-clay); font-size: 1.3rem; }
+  .process__step h3 { font-size: 1.05rem; margin: 0.6rem 0 0.4rem; }
+  .process__step p { color: var(--color-ink-soft); font-size: 0.9rem; line-height: 1.55; margin: 0; }
+
+  /* ---------- Pricing preview ---------- */
+  .pricing-grid { display: grid; gap: 1rem; margin: 2.5rem 0 1.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .pricing-grid { grid-template-columns: repeat(4, 1fr); } }
+  .pricing-card {
+    display: flex; flex-direction: column; gap: 0.35rem;
+    padding: 1.3rem; border-radius: var(--radius-md);
+    border: 1.5px solid var(--color-line);
+    text-decoration: none; color: inherit;
+    transition: border-color var(--dur-fast), transform var(--dur-fast) var(--ease-out-expo);
+  }
+  .pricing-card:hover { border-color: var(--color-forest); transform: translateY(-3px); }
+  .pricing-card__name { font-weight: 700; }
+  .pricing-card__price { font-family: var(--font-display); font-size: 1.4rem; color: var(--color-forest); }
+  .pricing-card__from { font-size: 0.8rem; font-weight: 400; color: var(--color-ink-soft); }
+  .pricing-card__unit { font-size: 0.78rem; color: var(--color-ink-soft); }
+  .pricing-note { max-width: 40rem; font-size: 0.85rem; color: var(--color-ink-soft); margin-bottom: 1.5rem; }
+
+  /* ---------- Testimonials & stats ---------- */
+  .testimonials__chip { margin-top: 0.5rem; }
+  .testimonials__note { color: rgb(246 242 233 / 0.65); font-size: 0.85rem; max-width: 36rem; margin-top: 0.75rem; }
+  .testimonials-grid { display: grid; gap: 1.5rem; margin-top: 2.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 56rem) { .testimonials-grid { grid-template-columns: repeat(3, 1fr); } }
+  .testimonial {
+    margin: 0; padding: 1.5rem;
+    border-radius: var(--radius-md);
+    background: rgb(246 242 233 / 0.06);
+    border: 1px solid var(--color-line-light);
+  }
+  .testimonial p { font-size: 1rem; line-height: 1.6; margin: 0 0 1rem; }
+  .testimonial footer { display: flex; flex-direction: column; font-size: 0.82rem; color: rgb(246 242 233 / 0.65); }
+  .testimonial footer strong { color: var(--color-sand); }
+
+  .stats-grid { display: grid; gap: 1.5rem; margin-top: 3rem; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 48rem) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+  .stat { display: flex; flex-direction: column; gap: 0.3rem; border-top: 1px solid var(--color-line-light); padding-top: 1rem; }
+  .stat__value { font-size: var(--step-3); color: var(--color-sand); }
+  .stat__label { font-size: 0.82rem; color: rgb(246 242 233 / 0.7); }
+
+  /* ---------- Final CTA ---------- */
+  .final-cta__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2.5rem; }
+</style>

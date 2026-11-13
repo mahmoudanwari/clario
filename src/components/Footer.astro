@@ -1,0 +1,129 @@
+---
+import { href, type Locale } from '../i18n/config.ts';
+import { t, fill } from '../i18n/ui.ts';
+import { site } from '../data/site.ts';
+import { services } from '../data/services.ts';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const strings = t(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer on-dark surface-forest">
+  <div class="container-x site-footer__grid">
+    <div class="site-footer__brand">
+      <a href={href(lang, 'home')} class="wordmark wordmark--dark">
+        <span class="wordmark__main">{site.wordmark}</span>
+        <span class="wordmark__sub">{site.descriptor}</span>
+      </a>
+      <p class="lede site-footer__statement">{strings.footer.statement}</p>
+      <span class="demo-chip">{strings.demo.sample}</span>
+    </div>
+
+    <nav class="site-footer__col" aria-label={strings.footer.explore}>
+      <h3>{strings.footer.explore}</h3>
+      <ul>
+        <li><a href={href(lang, 'home')} class="link-underline">{strings.nav.home}</a></li>
+        <li><a href={href(lang, 'sustainability')} class="link-underline">{strings.nav.sustainability}</a></li>
+        <li><a href={href(lang, 'about')} class="link-underline">{strings.nav.about}</a></li>
+        <li><a href={href(lang, 'contact')} class="link-underline">{strings.nav.contact}</a></li>
+        <li><a href={href(lang, 'demo')} class="link-underline">{strings.nav.demo}</a></li>
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label={strings.footer.services}>
+      <h3>{strings.footer.services}</h3>
+      <ul>
+        {services.map((s) => (
+          <li><a href={href(lang, s.route)} class="link-underline">{s.copy[lang].name}</a></li>
+        ))}
+        <li><a href={href(lang, 'services')} class="link-underline">{strings.nav.allServices}</a></li>
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label={strings.footer.legal}>
+      <h3>{strings.footer.legal}</h3>
+      <ul>
+        <li><a href={href(lang, 'privacy')} class="link-underline">{strings.footer.privacy}</a></li>
+        <li><a href={href(lang, 'cookies')} class="link-underline">{strings.footer.cookies}</a></li>
+        <li><a href={href(lang, 'terms')} class="link-underline">{strings.footer.terms}</a></li>
+        <li><a href={href(lang, 'notice')} class="link-underline">{strings.footer.notice}</a></li>
+        <li><button type="button" data-open-cookie-prefs class="link-underline footer-link-button">{strings.footer.cookiePrefs}</button></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__col">
+      <h3>{strings.footer.language}</h3>
+      <LanguageSwitcher lang={lang} class="on-dark" />
+    </div>
+  </div>
+
+  <div class="container-x site-footer__disclaimer">
+    <p>{strings.demo.footer}</p>
+  </div>
+
+  <div class="container-x site-footer__bottom">
+    <p>{fill(strings.footer.copyright, { year })}</p>
+    <a href={site.creator.url} target="_blank" rel="noopener" class="site-footer__credit link-underline">
+      {strings.footer.credit}
+      <span class="sr-only-focusable">{strings.a11y.externalLink}</span>
+    </a>
+  </div>
+</footer>
+
+<style>
+  .site-footer { padding-top: clamp(3rem, 2rem + 4vw, 5.5rem); padding-bottom: 2rem; }
+  .site-footer__grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--color-line-light);
+  }
+  @media (min-width: 40rem) { .site-footer__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .site-footer__grid { grid-template-columns: 1.6fr 1fr 1fr 1fr 0.9fr; } }
+
+  .site-footer__brand { display: flex; flex-direction: column; gap: 1rem; max-width: 24rem; }
+  .wordmark--dark { color: var(--color-ivory); }
+  .wordmark--dark .wordmark__sub { color: var(--color-sand); }
+  .site-footer__statement { color: rgb(246 242 233 / 0.78); font-size: 0.95rem; }
+
+  .site-footer__col h3 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-sand);
+    margin-bottom: 1rem;
+  }
+  .site-footer__col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.65rem; }
+  .site-footer__col a, .footer-link-button {
+    color: rgb(246 242 233 / 0.86);
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .footer-link-button { background: none; border: none; padding: 0; cursor: pointer; font: inherit; text-align: left; }
+
+  .site-footer__disclaimer {
+    padding-block: 1.75rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: rgb(246 242 233 / 0.62);
+    max-width: 52rem;
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-line-light);
+    font-size: 0.8rem;
+    color: rgb(246 242 233 / 0.6);
+  }
+  .site-footer__credit { color: var(--color-sand); font-weight: 650; }
+</style>

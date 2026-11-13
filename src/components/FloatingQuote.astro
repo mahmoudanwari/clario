@@ -1,0 +1,53 @@
+---
+import { href, type Locale } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const strings = t(lang);
+---
+
+<a href={href(lang, 'quote')} class="floating-quote btn btn-sand" data-floating-quote>
+  <span aria-hidden="true" class="floating-quote__icon">✦</span>
+  <span>{strings.floating.label}</span>
+</a>
+
+<style>
+  .floating-quote {
+    position: fixed;
+    right: 1.1rem;
+    bottom: 1.1rem;
+    z-index: 40;
+    box-shadow: 0 16px 34px -14px rgb(14 36 30 / 0.45);
+    transform: translateY(0);
+    transition: transform var(--dur-base) var(--ease-out-expo), opacity var(--dur-base);
+  }
+  .floating-quote.is-hidden { transform: translateY(1.5rem); opacity: 0; pointer-events: none; }
+  .floating-quote__icon { font-size: 0.9rem; }
+
+  /* The label always stays: an icon-only sparkle would give the link no
+     meaningful accessible name and no clear purpose. */
+  @media (max-width: 26rem) {
+    .floating-quote { padding: 0.7rem 1.05rem; font-size: 0.88rem; right: 0.75rem; }
+    .floating-quote__icon { display: none; }
+  }
+
+  /* Keep clear of the mobile menu button and respect safe-area insets */
+  .floating-quote { bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px)); }
+</style>
+
+<script>
+  function initFloatingQuote() {
+    const el = document.querySelector<HTMLElement>('[data-floating-quote]');
+    if (!el) return;
+    const footer = document.querySelector('.site-footer');
+    if (!footer) return;
+    const io = new IntersectionObserver(
+      ([entry]) => el.classList.toggle('is-hidden', entry.isIntersecting),
+      { rootMargin: '0px 0px -10% 0px' }
+    );
+    io.observe(footer);
+  }
+  initFloatingQuote();
+  document.addEventListener('astro:page-load', initFloatingQuote);
+</script>

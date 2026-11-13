@@ -1,0 +1,324 @@
+---
+/**
+ * Interactive quote wizard — a pure client-side simulation.
+ * Nothing is submitted, stored, logged or transmitted: all state lives in a
+ * single JS object for the lifetime of the page view.
+ */
+import { localeMeta, type Locale } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+import { interactive } from '../content/interactive.ts';
+import { services } from '../data/services.ts';
+import { pricing, frequencies, type FrequencyId, type ServiceId } from '../data/pricing.ts';
+
+interface Props { lang: Locale }
+const { lang } = Astro.props;
+const strings = t(lang);
+const copy = interactive[lang].wizard;
+
+const serviceMeta = services.map((s) => ({
+  id: s.id,
+  name: s.copy[lang].name,
+  short: s.copy[lang].short,
+  rate: pricing[s.id].ratePerM2,
+  basis: pricing[s.id].basis,
+  min: pricing[s.id].minArea,
+  max: pricing[s.id].maxArea,
+  frequencies: pricing[s.id].frequencies,
+}));
+
+const businessKeys = ['office', 'retail', 'hospitality', 'other'] as const;
+const timingKeys = ['early', 'day', 'evening', 'weekend'] as const;
+const allFrequencies = Object.keys(frequencies) as FrequencyId[];
+
+const config = {
+  locale: localeMeta[lang].intl,
+  services: serviceMeta,
+  frequencies: Object.fromEntries(allFrequencies.map((f) => [f, frequencies[f].visitsPerMonth])),
+  labels: {
+    frequency: Object.fromEntries(allFrequencies.map((f) => [f, copy.frequency.options[f].title])),
+    business: Object.fromEntries(businessKeys.map((b) => [b, copy.business.options[b].title])),
+    timing: Object.fromEntries(timingKeys.map((k) => [k, copy.timing.options[k].title])),
+    basis: { floor: strings.pricing.floor, glass: strings.pricing.glass },
+  },
+  review: copy.review,
+  errors: strings.form.errors,
+  errorSummary: strings.form.errorSummary,
+  progress: copy.progress,
+  stepNames: copy.stepNames,
+};
+---
+
+<div class="wizard" data-wizard data-config={JSON.stringify(config)}>
+  <!-- Progress -->
+  <div class="wizard__progress">
+    <p class="wizard__progress-text" data-progress-text aria-live="polite"></p>
+    <ol class="wizard__steps" data-progress-steps>
+      {copy.stepNames.map((name, i) => (
+        <li class="wizard__step-pip" data-pip={i + 1}>
+          <span class="wizard__pip-dot" aria-hidden="true"></span>
+          <span class="wizard__pip-label">{name}</span>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <p class="wizard__notice demo-chip">{strings.demo.formNotice}</p>
+
+  <form class="wizard__form" data-wizard-form novalidate>
+    <!-- Step 1 — service -->
+    <fieldset class="wizard__panel" data-step="1">
+      <legend class="wizard__legend">{copy.service.legend}</legend>
+      <div class="choice-grid">
+        {serviceMeta.map((s, i) => (
+          <label class="choice">
+            <input type="radio" name="service" value={s.id} required checked={i === 0} />
+            <span class="choice-card">
+              <span class="choice-title">{s.name}</span>
+              <span class="choice-sub">{s.short}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      <p class="field-error" data-error-for="service" role="alert"></p>
+    </fieldset>
+
+    <!-- Step 2 — business type -->
+    <fieldset class="wizard__panel" data-step="2" hidden>
+      <legend class="wizard__legend">{copy.business.legend}</legend>
+      <div class="choice-grid choice-grid--2">
+        {businessKeys.map((key, i) => (
+          <label class="choice">
+            <input type="radio" name="business" value={key} required checked={i === 0} />
+            <span class="choice-card">
+              <span class="choice-title">{copy.business.options[key].title}</span>
+              <span class="choice-sub">{copy.business.options[key].sub}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      <p class="field-error" data-error-for="business" role="alert"></p>
+    </fieldset>
+
+    <!-- Step 3 — area -->
+    <fieldset class="wizard__panel" data-step="3" hidden>
+      <legend class="wizard__legend" data-area-legend>{copy.area.floorLabel}</legend>
+      <div class="wizard__area">
+        <div class="wizard__area-input">
+          <label
+            class="field-label"
+            for="area-input"
+            data-area-label
+            data-glass-label={copy.area.glassLabel}
+          >{copy.area.floorLabel}</label>
+          <div class="input-unit">
+            <input
+              class="field-input"
+              type="number"
+              id="area-input"
+              name="area"
+              inputmode="numeric"
+              min="20"
+              max="20000"
+              step="1"
+              value="400"
+              required
+              aria-describedby="area-hint"
+            />
+            <span class="input-unit__suffix" aria-hidden="true">{copy.area.unit}</span>
+          </div>
+          <span
+            class="field-hint"
+            id="area-hint"
+            data-area-hint
+            data-glass-hint={copy.area.glassHint}
+          >{copy.area.floorHint}</span>
+          <p class="field-error" data-error-for="area" role="alert"></p>
+        </div>
+        <div class="wizard__presets">
+          <span class="field-label">{copy.area.presets}</span>
+          <div class="wizard__preset-buttons" data-presets>
+            {[100, 250, 500, 1000, 2500].map((v) => (
+              <button type="button" class="preset" data-preset={v}>{v} {copy.area.unit}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Step 4 — frequency -->
+    <fieldset class="wizard__panel" data-step="4" hidden>
+      <legend class="wizard__legend">{copy.frequency.legend}</legend>
+      <div class="choice-grid choice-grid--2" data-frequency-grid>
+        {allFrequencies.map((key) => (
+          <label class="choice" data-frequency-option={key} hidden>
+            <input type="radio" name="frequency" value={key} />
+            <span class="choice-card">
+              <span class="choice-title">{copy.frequency.options[key].title}</span>
+              <span class="choice-sub">{copy.frequency.options[key].sub}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      <p class="field-error" data-error-for="frequency" role="alert"></p>
+    </fieldset>
+
+    <!-- Step 5 — timing -->
+    <fieldset class="wizard__panel" data-step="5" hidden>
+      <legend class="wizard__legend">{copy.timing.legend}</legend>
+      <div class="choice-grid choice-grid--2">
+        {timingKeys.map((key, i) => (
+          <label class="choice">
+            <input type="radio" name="timing" value={key} required checked={i === 0} />
+            <span class="choice-card">
+              <span class="choice-title">{copy.timing.options[key].title}</span>
+              <span class="choice-sub">{copy.timing.options[key].sub}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      <p class="field-error" data-error-for="timing" role="alert"></p>
+    </fieldset>
+
+    <!-- Step 6 — review -->
+    <fieldset class="wizard__panel" data-step="6" hidden>
+      <legend class="wizard__legend">{copy.review.title}</legend>
+
+      <dl class="summary" data-summary></dl>
+
+      <div class="estimate" data-estimate>
+        <div class="estimate__row">
+          <span class="estimate__label">{copy.review.perVisit}</span>
+          <span class="estimate__value" data-estimate-visit></span>
+        </div>
+        <div class="estimate__row estimate__row--month" data-estimate-month-row>
+          <span class="estimate__label">{copy.review.perMonth}</span>
+          <span class="estimate__value estimate__value--sm" data-estimate-month></span>
+        </div>
+        <p class="estimate__calc" data-estimate-calc></p>
+      </div>
+
+      <p class="wizard__binding">{copy.review.notBinding}</p>
+
+      <div class="sample-contact">
+        <h3>{copy.review.contactTitle}</h3>
+        <p class="sample-contact__note">{copy.review.contactNote}</p>
+        <dl>
+          <div><dt>{copy.review.companyLabel}</dt><dd>{copy.review.contact.company}</dd></div>
+          <div><dt>{copy.review.nameLabel}</dt><dd>{copy.review.contact.name}</dd></div>
+          <div><dt>{copy.review.emailLabel}</dt><dd>{copy.review.contact.email}</dd></div>
+          <div><dt>{copy.review.cityLabel}</dt><dd>{copy.review.contact.city}</dd></div>
+        </dl>
+      </div>
+    </fieldset>
+
+    <!-- Confirmation -->
+    <div class="wizard__done" data-done hidden tabindex="-1">
+      <span class="wizard__done-mark" aria-hidden="true">✓</span>
+      <h3>{copy.done.title}</h3>
+      <p>{copy.done.text}</p>
+      <h4>{copy.done.summary}</h4>
+      <dl class="summary" data-done-summary></dl>
+      <button type="button" class="btn btn-ghost" data-restart>{strings.form.restart}</button>
+    </div>
+
+    <p class="field-error wizard__summary-error" data-summary-error role="alert"></p>
+
+    <div class="wizard__nav" data-nav>
+      <button type="button" class="btn btn-ghost" data-back hidden>{strings.form.back}</button>
+      <button type="button" class="btn" data-next>
+        {strings.form.next}
+        <span class="btn-arrow" aria-hidden="true">→</span>
+      </button>
+      <button type="button" class="btn btn-sand" data-submit hidden>{copy.review.submit}</button>
+    </div>
+  </form>
+</div>
+
+<style>
+  .wizard {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-paper);
+    padding: clamp(1.25rem, 1rem + 2vw, 2.5rem);
+  }
+  .wizard__progress { margin-bottom: 1.5rem; }
+  .wizard__progress-text { font-size: 0.82rem; font-weight: 700; color: var(--color-clay); letter-spacing: 0.08em; text-transform: uppercase; }
+  .wizard__steps { list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin: 0.75rem 0 0; padding: 0; }
+  .wizard__step-pip { display: flex; align-items: center; gap: 0.4rem; font-size: 0.76rem; color: var(--color-ink-soft); }
+  .wizard__pip-dot { width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--color-line); transition: background-color var(--dur-fast), transform var(--dur-fast); }
+  .wizard__step-pip.is-current .wizard__pip-dot { background: var(--color-forest); transform: scale(1.4); }
+  .wizard__step-pip.is-done .wizard__pip-dot { background: var(--color-sage); }
+  .wizard__step-pip.is-current { color: var(--color-forest); font-weight: 700; }
+  .wizard__pip-label { display: none; }
+  @media (min-width: 48rem) { .wizard__pip-label { display: inline; } }
+
+  .wizard__notice { margin-bottom: 1.5rem; }
+
+  .wizard__panel { border: 0; padding: 0; margin: 0; min-inline-size: 0; }
+  .wizard__panel[hidden] { display: none; }
+  .wizard__legend { font-family: var(--font-display); font-size: var(--step-2); margin-bottom: 1.25rem; padding: 0; }
+
+  .choice-grid { display: grid; gap: 0.9rem; grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .choice-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 64rem) { .choice-grid { grid-template-columns: repeat(4, 1fr); } }
+  .choice-grid--2 { grid-template-columns: 1fr; }
+  @media (min-width: 40rem) { .choice-grid--2 { grid-template-columns: repeat(2, 1fr); } }
+  .choice[hidden] { display: none; }
+
+  .wizard__area { display: grid; gap: 2rem; }
+  @media (min-width: 48rem) { .wizard__area { grid-template-columns: 1fr 1fr; align-items: start; } }
+  .input-unit { position: relative; }
+  .input-unit__suffix { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--color-ink-soft); font-weight: 650; pointer-events: none; }
+  .wizard__preset-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.45rem; }
+  .preset {
+    padding: 0.5rem 0.85rem; border-radius: 999px; border: 1.5px solid var(--color-line);
+    background: transparent; font: inherit; font-size: 0.85rem; font-weight: 650; cursor: pointer;
+    transition: border-color var(--dur-fast), background-color var(--dur-fast);
+  }
+  .preset:hover { border-color: var(--color-forest); background: var(--color-mist); }
+
+  /* Summary rows are created in JS — see the runtime section of global.css. */
+
+  .estimate { background: var(--color-mist); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .estimate__row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
+  .estimate__row--month { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--color-line); }
+  .estimate__row--month[hidden] { display: none; }
+  .estimate__label { color: var(--color-ink-soft); font-size: 0.9rem; }
+  .estimate__value { font-family: var(--font-display); font-size: var(--step-3); color: var(--color-forest); }
+  .estimate__value--sm { font-size: var(--step-2); }
+  .estimate__calc { margin-top: 0.75rem; font-size: 0.82rem; color: var(--color-ink-soft); }
+
+  .wizard__binding { font-size: 0.84rem; color: var(--color-ink-soft); line-height: 1.6; margin-bottom: 1.5rem; max-width: 44rem; }
+
+  .sample-contact { border: 1px dashed var(--color-line); border-radius: var(--radius-md); padding: 1.25rem; }
+  .sample-contact h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+  .sample-contact__note { font-size: 0.82rem; color: var(--color-ink-soft); margin-bottom: 1rem; }
+  .sample-contact dl { display: grid; gap: 0.1rem; margin: 0; }
+  .sample-contact > dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--color-line); font-size: 0.9rem; }
+  .sample-contact dt { color: var(--color-ink-soft); }
+  .sample-contact dd { margin: 0; font-weight: 650; }
+
+  .wizard__done { text-align: center; padding: 1rem 0 0; }
+  .wizard__done[hidden] { display: none; }
+  .wizard__done-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 3.5rem; height: 3.5rem; border-radius: 999px;
+    background: var(--color-forest); color: var(--color-ivory); font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  .wizard__done h3 { font-size: var(--step-2); margin-bottom: 0.75rem; }
+  .wizard__done > p { color: var(--color-ink-soft); max-width: 36rem; margin: 0 auto 2rem; line-height: 1.7; }
+  .wizard__done h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-clay); margin-bottom: 0.75rem; }
+  .wizard__done .summary { text-align: left; max-width: 32rem; margin-inline: auto; }
+
+  .wizard__summary-error { margin-top: 1rem; }
+  .wizard__nav { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-line); }
+  .wizard__nav[hidden] { display: none; }
+  .wizard__nav .btn[hidden] { display: none; }
+</style>
+
+<script>
+  import { initQuoteWizard } from '../scripts/quote-wizard.ts';
+  initQuoteWizard();
+  document.addEventListener('astro:page-load', () => initQuoteWizard());
+</script>

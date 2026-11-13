@@ -1,0 +1,98 @@
+---
+/**
+ * Animation on/off control. The authoritative state lives on
+ * `<html data-motion="on|off">`, set as early as possible by the inline
+ * script in BaseLayout (before paint) to avoid a flash of animated content
+ * for users who already opted out. This component only reflects and
+ * toggles that state; it never assumes JS has already run.
+ */
+import type { Locale } from '../i18n/config.ts';
+import { t } from '../i18n/ui.ts';
+
+interface Props { lang: Locale; class?: string }
+const { lang, class: className = '' } = Astro.props;
+const strings = t(lang);
+---
+
+<button
+  type="button"
+  data-motion-toggle
+  class={`motion-toggle ${className}`}
+  aria-pressed="true"
+  data-label-on={strings.motion.statusOn}
+  data-label-off={strings.motion.statusOff}
+  data-on-word={strings.motion.on}
+  data-off-word={strings.motion.off}
+>
+  <span class="motion-toggle__dot" aria-hidden="true"></span>
+  <span class="motion-toggle__text">{strings.motion.label}</span>
+  <span class="motion-toggle__state" data-state-text>{strings.motion.on}</span>
+  <span class="sr-only-focusable" data-sr-status></span>
+</button>
+
+<style>
+  .motion-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 999px;
+    background: transparent;
+    border: 1.5px solid currentColor;
+    color: inherit;
+    font-size: 0.78rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background-color var(--dur-fast);
+  }
+  .motion-toggle:hover { background: rgb(255 255 255 / 0.08); }
+  .motion-toggle__dot {
+    width: 0.5rem; height: 0.5rem; border-radius: 999px;
+    background: currentColor;
+  }
+  html[data-motion='off'] .motion-toggle__dot { opacity: 0.35; }
+  .motion-toggle__text { display: none; }
+  @media (min-width: 48rem) { .motion-toggle__text { display: inline; } }
+</style>
+
+<script>
+  /** Several instances can exist (header + mobile menu); all stay in sync. */
+  function initMotionToggle(scope: Document | HTMLElement = document) {
+    const buttons = scope.querySelectorAll<HTMLButtonElement>('[data-motion-toggle]');
+    buttons.forEach((btn) => {
+      if (btn.dataset.wired) return;
+      btn.dataset.wired = 'true';
+      const stateText = btn.querySelector<HTMLElement>('[data-state-text]');
+      const srStatus = btn.querySelector<HTMLElement>('[data-sr-status]');
+
+      const syncAll = () => {
+        document.querySelectorAll<HTMLButtonElement>('[data-motion-toggle]').forEach((other) => {
+          const on = document.documentElement.dataset.motion !== 'off';
+          other.setAttribute('aria-pressed', String(on));
+          const text = other.querySelector<HTMLElement>('[data-state-text]');
+          if (text) text.textContent = on ? other.dataset.onWord! : other.dataset.offWord!;
+        });
+      };
+      const sync = syncAll;
+
+      btn.addEventListener('click', () => {
+        const root = document.documentElement;
+        const next = root.dataset.motion === 'off' ? 'on' : 'off';
+        root.dataset.motion = next;
+        try {
+          localStorage.setItem('clario-motion', next);
+        } catch {
+          /* storage may be unavailable (private mode) — state still applies for this view */
+        }
+        root.classList.toggle('js-motion', next === 'on');
+        sync();
+        if (srStatus) srStatus.textContent = next === 'on' ? btn.dataset.labelOn! : btn.dataset.labelOff!;
+      });
+
+      sync();
+    });
+  }
+
+  initMotionToggle();
+  document.addEventListener('astro:page-load', () => initMotionToggle());
+</script>

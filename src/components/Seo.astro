@@ -1,0 +1,43 @@
+---
+import { locales, localeMeta, swapLocale, type Locale } from '../i18n/config.ts';
+import { site } from '../data/site.ts';
+
+interface Props {
+  lang: Locale;
+  title: string;
+  description: string;
+  path: string;
+  /** Set true on pages that must never be found (none currently — kept for completeness). */
+  noindex?: boolean;
+}
+
+const { lang, title, description, path, noindex = false } = Astro.props;
+const canonicalPath = path.endsWith('/') ? path : `${path}/`;
+const canonical = new URL(canonicalPath, site.url).toString();
+const ogImage = new URL('/images/clario/og-default.jpg', site.url).toString();
+// Avoid "Clario Cleaning — … — Clario Cleaning" when the page title already
+// carries the brand (the homepage does, for search results).
+const fullTitle = title.includes(site.name) ? title : `${title} · ${site.name}`;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex,follow" />}
+
+{locales.map((l) => (
+  <link rel="alternate" hreflang={localeMeta[l].intl} href={new URL(swapLocale(canonicalPath, l), site.url).toString()} />
+))}
+<link rel="alternate" hreflang="x-default" href={new URL(swapLocale(canonicalPath, 'en'), site.url).toString()} />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:locale" content={localeMeta[lang].og} />
+<meta property="og:image" content={ogImage} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />

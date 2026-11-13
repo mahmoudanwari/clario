@@ -1,0 +1,27 @@
+{
+  "name": "clario-cleaning",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Clario Cleaning — fictional multilingual commercial cleaning portfolio demo by Mahmoud Anwari.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build && node scripts/prune-originals.mjs",
+    "build:fast": "astro build && node scripts/prune-originals.mjs",
+    "preview": "astro preview",
+    "check": "astro check",
+    "manifest": "node scripts/generate-image-manifest.mjs",
+    "verify": "node scripts/verify-build.mjs",
+    "prompts": "node scripts/generate-image-prompts.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.5",
+    "astro": "^5.18.2",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^6.0.3"
+  }
+}
