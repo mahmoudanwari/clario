@@ -484,6 +484,8 @@ _All slots are filled._
 - NL — Twee schoonmakers doen een grondige poetsbeurt in een restaurant na sluitingstijd
 - FR — Deux agents effectuent un nettoyage en profondeur d’une salle de restaurant après la fermeture
 
+**Notes.** Regenerated once already: the first version had a step ladder in frame, which contradicted this page's own statement that work at height is outside the concept's scope. Any future version must keep both cleaners working from the floor, with nothing in shot that anyone could stand on.
+
 ---
 
 ### CL-13 — `service-deep-detail-highreach`

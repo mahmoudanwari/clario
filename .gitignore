@@ -13,3 +13,6 @@ clairo images/
 
 # Second batch of supplied originals (same reason as above).
 clairo images 2/
+
+# Third batch of supplied originals.
+clairo images 3/
