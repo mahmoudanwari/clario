@@ -10,3 +10,6 @@ Thumbs.db
 # Your original, full-size supplied images. The build consumes the optimised
 # copies in src/assets/clario/ instead, so these stay local and out of history.
 clairo images/
+
+# Second batch of supplied originals (same reason as above).
+clairo images 2/

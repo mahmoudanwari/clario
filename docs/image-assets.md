@@ -35,71 +35,46 @@ inlined assets.
 
 ## Status summary
 
-- **Supplied:** 12 / 30
-- **Still needed:** 18 (P1: 2, P2: 12, P3: 4)
+- **Supplied:** 30 / 30
+- **Still needed:** 0 (P1: 0, P2: 0, P3: 0)
 
 ## Priority order for the images still needed
 
-### P1 — do these first (hero and key section images)
-
-1. **CL-02** `home-hero-detail-glass` — Home / Hero (layered inset card)
-2. **CL-08** `home-sustainability-refill` — Home / Sustainability feature
-
-### P2 — important supporting images
-
-1. **CL-03** `home-intro-reception` — Home / Brand introduction (large image)
-2. **CL-04** `home-intro-detail-cart` — Home / Brand introduction (small overlapping image)
-3. **CL-05** `home-why-team-briefing` — Home / Why Clario
-4. **CL-11** `service-office-detail-kitchen` — Office Cleaning / Detail image
-5. **CL-13** `service-deep-detail-highreach` — Deep Cleaning / Detail image
-6. **CL-15** `service-window-detail-partition` — Window Cleaning / Detail image
-7. **CL-17** `service-sanitation-detail-restroom` — Workplace Sanitation / Detail image
-8. **CL-19** `sustainability-journey-products` — Sustainability / Journey step 1 — product selection
-9. **CL-20** `sustainability-journey-cloths` — Sustainability / Journey step 2 — reusable materials
-10. **CL-21** `sustainability-journey-water` — Sustainability / Journey step 3 — water use
-11. **CL-24** `about-detail-care` — About / Philosophy (detail)
-12. **CL-27** `book-side-assessment` — Book an Assessment / Side image
-
-### P3 — nice to have
-
-1. **CL-22** `sustainability-journey-planning` — Sustainability / Journey step 4 — efficient planning
-2. **CL-25** `about-detail-teamwork` — About / Teamwork (detail)
-3. **CL-26** `quote-side-workspace` — Request a Quote / Side image
-4. **CL-29** `home-hero-team-office-mobile` — Home / Hero — optional portrait crop for phones
+_All slots are filled._
 
 ## All assets at a glance
 
 | ID | Page | Section | Aspect | Priority | Status |
 | --- | --- | --- | --- | --- | --- |
 | CL-01 | Home | Hero (full-screen) | 3:2 | P1 | ✅ supplied |
-| CL-02 | Home | Hero (layered inset card) | 4:5 | P1 | ⬜ needed |
-| CL-03 | Home | Brand introduction (large image) | 4:5 | P2 | ⬜ needed |
-| CL-04 | Home | Brand introduction (small overlapping image) | 1:1 | P2 | ⬜ needed |
-| CL-05 | Home | Why Clario | 4:5 | P2 | ⬜ needed |
+| CL-02 | Home | Hero (layered inset card) | 4:5 | P1 | ✅ supplied |
+| CL-03 | Home | Brand introduction (large image) | 4:5 | P2 | ✅ supplied |
+| CL-04 | Home | Brand introduction (small overlapping image) | 1:1 | P2 | ✅ supplied |
+| CL-05 | Home | Why Clario | 4:5 | P2 | ✅ supplied |
 | CL-06 | Home | Before / after comparison — BEFORE | 2:1 | P1 | ✅ supplied |
 | CL-07 | Home | Before / after comparison — AFTER | 2:1 | P1 | ✅ supplied |
-| CL-08 | Home | Sustainability feature | 4:5 | P1 | ⬜ needed |
+| CL-08 | Home | Sustainability feature | 4:5 | P1 | ✅ supplied |
 | CL-09 | Services | Page hero | 3:2 | P2 | ✅ supplied |
 | CL-10 | Office Cleaning | Service hero + service card | 3:2 | P1 | ✅ supplied |
-| CL-11 | Office Cleaning | Detail image | 4:5 | P2 | ⬜ needed |
+| CL-11 | Office Cleaning | Detail image | 4:5 | P2 | ✅ supplied |
 | CL-12 | Deep Cleaning | Service hero + service card | 3:2 | P1 | ✅ supplied |
-| CL-13 | Deep Cleaning | Detail image | 4:5 | P2 | ⬜ needed |
+| CL-13 | Deep Cleaning | Detail image | 4:5 | P2 | ✅ supplied |
 | CL-14 | Window Cleaning | Service hero + service card | 3:2 | P1 | ✅ supplied |
-| CL-15 | Window Cleaning | Detail image | 4:5 | P2 | ⬜ needed |
+| CL-15 | Window Cleaning | Detail image | 4:5 | P2 | ✅ supplied |
 | CL-16 | Workplace Sanitation | Service hero + service card | 3:2 | P1 | ✅ supplied |
-| CL-17 | Workplace Sanitation | Detail image | 4:5 | P2 | ⬜ needed |
+| CL-17 | Workplace Sanitation | Detail image | 4:5 | P2 | ✅ supplied |
 | CL-18 | Sustainability | Page hero | 3:2 | P1 | ✅ supplied |
-| CL-19 | Sustainability | Journey step 1 — product selection | 4:5 | P2 | ⬜ needed |
-| CL-20 | Sustainability | Journey step 2 — reusable materials | 4:5 | P2 | ⬜ needed |
-| CL-21 | Sustainability | Journey step 3 — water use | 4:5 | P2 | ⬜ needed |
-| CL-22 | Sustainability | Journey step 4 — efficient planning | 4:5 | P3 | ⬜ needed |
+| CL-19 | Sustainability | Journey step 1 — product selection | 4:5 | P2 | ✅ supplied |
+| CL-20 | Sustainability | Journey step 2 — reusable materials | 4:5 | P2 | ✅ supplied |
+| CL-21 | Sustainability | Journey step 3 — water use | 4:5 | P2 | ✅ supplied |
+| CL-22 | Sustainability | Journey step 4 — efficient planning | 4:5 | P3 | ✅ supplied |
 | CL-23 | About | Page hero | 3:2 | P1 | ✅ supplied |
-| CL-24 | About | Philosophy (detail) | 4:5 | P2 | ⬜ needed |
-| CL-25 | About | Teamwork (detail) | 1:1 | P3 | ⬜ needed |
-| CL-26 | Request a Quote | Side image | 4:5 | P3 | ⬜ needed |
-| CL-27 | Book an Assessment | Side image | 4:5 | P2 | ⬜ needed |
+| CL-24 | About | Philosophy (detail) | 4:5 | P2 | ✅ supplied |
+| CL-25 | About | Teamwork (detail) | 1:1 | P3 | ✅ supplied |
+| CL-26 | Request a Quote | Side image | 4:5 | P3 | ✅ supplied |
+| CL-27 | Book an Assessment | Side image | 4:5 | P2 | ✅ supplied |
 | CL-28 | Contact | Page hero | 3:2 | P3 | ✅ supplied |
-| CL-29 | Home | Hero — optional portrait crop for phones | 4:5 | P3 | ⬜ needed |
+| CL-29 | Home | Hero — optional portrait crop for phones | 4:5 | P3 | ✅ supplied |
 | CL-30 | All pages | Social sharing (Open Graph) image | 1.91:1 | P2 | ✅ supplied |
 
 ## Full specifications
@@ -143,7 +118,7 @@ inlined assets.
 
 ### CL-02 — `home-hero-detail-glass`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -176,7 +151,7 @@ inlined assets.
 
 ### CL-03 — `home-intro-reception`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -209,7 +184,7 @@ inlined assets.
 
 ### CL-04 — `home-intro-detail-cart`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -242,7 +217,7 @@ inlined assets.
 
 ### CL-05 — `home-why-team-briefing`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -345,7 +320,7 @@ inlined assets.
 
 ### CL-08 — `home-sustainability-refill`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -446,7 +421,7 @@ inlined assets.
 
 ### CL-11 — `service-office-detail-kitchen`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -513,7 +488,7 @@ inlined assets.
 
 ### CL-13 — `service-deep-detail-highreach`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -580,7 +555,7 @@ inlined assets.
 
 ### CL-15 — `service-window-detail-partition`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -647,7 +622,7 @@ inlined assets.
 
 ### CL-17 — `service-sanitation-detail-restroom`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -714,7 +689,7 @@ inlined assets.
 
 ### CL-19 — `sustainability-journey-products`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -747,7 +722,7 @@ inlined assets.
 
 ### CL-20 — `sustainability-journey-cloths`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -780,7 +755,7 @@ inlined assets.
 
 ### CL-21 — `sustainability-journey-water`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -813,7 +788,7 @@ inlined assets.
 
 ### CL-22 — `sustainability-journey-planning`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -880,7 +855,7 @@ inlined assets.
 
 ### CL-24 — `about-detail-care`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -913,7 +888,7 @@ inlined assets.
 
 ### CL-25 — `about-detail-teamwork`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -946,7 +921,7 @@ inlined assets.
 
 ### CL-26 — `quote-side-workspace`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -979,7 +954,7 @@ inlined assets.
 
 ### CL-27 — `book-side-assessment`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |
@@ -1046,7 +1021,7 @@ inlined assets.
 
 ### CL-29 — `home-hero-team-office-mobile`
 
-**Status:** ⬜ still needed
+**Status:** ✅ supplied
 
 | Field | Value |
 | --- | --- |

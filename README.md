@@ -36,8 +36,42 @@ Then open <http://localhost:4321> (it redirects to `/en/`).
 | `npm run check` | Type-check only |
 | `npm run verify` | Static QA pass over `dist/` (privacy, SEO, a11y, translations) |
 | `npm run manifest` | Regenerate `docs/image-assets.md` from the image registry |
+| `npm run prompts` | Regenerate `docs/image-prompts.md` for any image slot still missing |
 
-**Build output directory:** `dist/` · **Framework preset for Cloudflare Pages:** Astro
+**Build output directory:** `dist/`
+
+## Deploying
+
+The site is hosted on **GitHub Pages** and served at the root of
+<https://clario.mahmoudanwari.com>, the same arrangement as `barber.mahmoudanwari.com` and
+`restaurant.mahmoudanwari.com`.
+
+**To deploy, push to `main`:**
+
+```bash
+git add -A && git commit -m "Describe the change" && git push
+```
+
+`.github/workflows/deploy.yml` then runs on every push: `npm ci` → `npm run build`
+(which runs `astro check` first) → `npm run verify` → `upload-pages-artifact@v3` →
+`deploy-pages@v4`. A type error, a missing translation key, or a regression that would
+introduce a tracker or a live `mailto:` link **fails the deploy instead of shipping**.
+
+The pieces that make this work, so they are not broken by accident:
+
+- **Settings → Pages → Source** is set to **GitHub Actions** (not a branch).
+- **`public/CNAME`** contains `clario.mahmoudanwari.com`. It ends up in `dist/`, and therefore
+  in the deployed artifact, which is what keeps the custom domain attached across deploys.
+- **`site`** in `astro.config.mjs` is the full custom domain. It drives canonical URLs,
+  `hreflang` and the sitemap — change it and those all follow.
+- **No `base` path** is configured, because the site is served at the domain root. The
+  `mahmoudanwari.github.io/clario/` URL will therefore look broken; that is expected.
+- **DNS** is a single `CNAME` record at Cloudflare: `clario` → `mahmoudanwari.github.io`,
+  **DNS only** (grey cloud). Proxying it would break GitHub's certificate issuance.
+- **Git identity** is set locally for this repository only, to
+  `Mahmood Anwari <mahmoudanwari@users.noreply.github.com>`.
+
+Full step-by-step, including first-time setup and rollback: [docs/deployment.md](docs/deployment.md).
 
 ## Documentation
 
@@ -45,7 +79,7 @@ Then open <http://localhost:4321> (it redirects to `/en/`).
 | --- | --- |
 | [docs/architecture.md](docs/architecture.md) | Folder structure, routing, i18n, data flow, interactive islands |
 | [docs/image-assets.md](docs/image-assets.md) | Every image slot, its art direction and what is still needed (generated) |
-| [docs/deployment.md](docs/deployment.md) | GitHub → Cloudflare Pages → custom domain, step by step |
+| [docs/deployment.md](docs/deployment.md) | GitHub Pages via Actions, DNS and custom domain, step by step |
 | [docs/testing-report.md](docs/testing-report.md) | What was tested, how, results, and what was *not* tested |
 
 ## Adding the remaining photography

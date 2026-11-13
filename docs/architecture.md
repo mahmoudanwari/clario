@@ -174,5 +174,5 @@ a submit handler in one place:
 - **Booking** — `src/scripts/booking-calendar.ts`, `slotsFor()` for availability and the
   `confirmBtn` handler for creating a booking.
 
-Each would need a server endpoint (Astro's hybrid output, or a Cloudflare Function), consent
+Each would need a server endpoint (Astro's server output, or a small serverless function), consent
 handling, and a rewrite of the demo legal pages by a qualified professional.

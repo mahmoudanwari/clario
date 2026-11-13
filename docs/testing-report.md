@@ -276,7 +276,7 @@ documented in [architecture.md](architecture.md).
 4. **Lighthouse.** Not run; no Chrome binary with the Lighthouse CLI available in this
    environment. The Core Web Vitals above were measured with the Performance API instead,
    on localhost. Run Lighthouse against the deployed URL before judging the scores.
-5. **Deployment.** Nothing was deployed. No GitHub repository, no Cloudflare project, no DNS
+5. **Deployment.** At the time of this report nothing had been deployed: no GitHub repository, no Pages site, no DNS
    change — per instruction. The steps and the verification checklist are in
    [deployment.md](deployment.md), unexecuted.
 6. **Print styles.** Not designed or tested.

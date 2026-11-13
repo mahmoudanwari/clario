@@ -1,119 +1,123 @@
-# Deployment guide — GitHub → Cloudflare Pages → `clario.mahmoudanwari.com`
+# Deployment guide — GitHub Pages at `clario.mahmoudanwari.com`
 
-> **Nothing in this guide has been executed.** No repository was created, no deployment was
-> made, no DNS record was touched. These are the steps to run when you approve deployment.
+The same setup as `barber.mahmoudanwari.com` and `restaurant.mahmoudanwari.com`: a public
+GitHub repository, built and published by GitHub Actions, served at a subdomain that points
+at GitHub Pages through a Cloudflare DNS record.
 
-## 0. Prerequisites
+> Steps marked **[you]** need your GitHub or Cloudflare account and are yours to perform.
+> Nothing in this guide is executed automatically.
 
-- The repo builds locally: `npm run build` finishes and `npm run verify` passes.
-- You have a GitHub account and a Cloudflare account with `mahmoudanwari.com` already on it
-  (the apex domain's nameservers pointing at Cloudflare).
+## 0. What is already prepared
 
-## 1. Build settings reference
-
-| Setting | Value |
+| Item | State |
 | --- | --- |
-| Framework preset | **Astro** |
-| Build command | `npm run build` |
-| Build output directory | `dist` |
-| Root directory | *(leave empty)* |
-| Node version | 20 or newer (set `NODE_VERSION=20` as an env var if the default is older) |
-| Install command | `npm ci` (Cloudflare's default; needs `package-lock.json` committed) |
+| `.github/workflows/deploy.yml` | Actions workflow: checkout@v4 → setup-node@v4 (Node 22, npm cache) → `npm ci` → `npm run build` (includes `astro check`) → `npm run verify` → upload-pages-artifact@v3 → deploy-pages@v4 |
+| `public/CNAME` | Contains `clario.mahmoudanwari.com`, so the custom domain survives every Actions deploy |
+| `astro.config.mjs` | `site: 'https://clario.mahmoudanwari.com'` — canonical URLs, `hreflang` and the sitemap all use it |
+| Base path | None. The site is served at the domain root, so no `base` is configured |
+| Git identity | Set **locally for this repo only**: `Mahmood Anwari <mahmoudanwari@users.noreply.github.com>`. Your global identity is untouched |
 
-No environment variables, secrets, bindings or functions are required — the output is pure
-static files.
+## 1. Create the repository **[you / approved by you]**
 
-## 2. Create the Git repository
-
-```bash
-git init -b main
-```
+Public, under the `mahmoudanwari` account, named `clario`. Nothing is created without your
+go-ahead, and your existing repositories (`mahmoudanwari.github.io`, `la-belle-belgique`) are
+never touched.
 
 ```bash
-git add . && git commit -m "Clario Cleaning: initial portfolio demo build"
+gh repo create mahmoudanwari/clario --public --source=. --remote=origin --push
 ```
 
-Create an empty repository on GitHub (no README, no .gitignore — this project has both),
-then:
+## 2. Turn on Pages **[you]**
+
+Repository → **Settings** → **Pages** → **Build and deployment** → **Source: GitHub Actions**.
+
+Do this *before* or right after the first push. The workflow run will fail at the deploy step
+with "Pages is not enabled" until it is set.
+
+## 3. Watch the first run
+
+Repository → **Actions** → the "Build and deploy to GitHub Pages" run. Roughly 1–2 minutes:
+most of it is `npm ci` and image optimisation. When it is green, the site is live at
+`https://mahmoudanwari.github.io/clario/` — note that **this URL will show a broken-looking
+page**, because the build is configured for the domain root, not a `/clario/` sub-path. That
+is expected and resolves itself once the custom domain is attached.
+
+## 4. Add the DNS record at Cloudflare **[you]**
+
+Cloudflare dashboard → the `mahmoudanwari.com` zone → **DNS** → **Records** → **Add record**:
+
+| Field | Value |
+| --- | --- |
+| Type | `CNAME` |
+| Name | `clario` |
+| Target | `mahmoudanwari.github.io` |
+| Proxy status | **DNS only** (grey cloud — *not* the orange proxied cloud) |
+| TTL | Auto |
+
+**The grey cloud matters.** Proxying would put Cloudflare in front of GitHub Pages and break
+its certificate issuance, which is why your other two sites are DNS-only too.
+
+Add **one** record. Do not edit or delete anything else in the zone — `barber` and
+`restaurant` have their own records and must keep working.
+
+Check it from here once saved:
 
 ```bash
-git remote add origin git@github.com:<your-username>/clario-cleaning.git
+nslookup clario.mahmoudanwari.com
 ```
+
+## 5. Attach the custom domain **[you]**
+
+Repository → **Settings** → **Pages** → **Custom domain** → `clario.mahmoudanwari.com` → Save.
+
+GitHub runs a DNS check (usually seconds, occasionally a few minutes). When it passes, the
+**Enforce HTTPS** checkbox becomes available — tick it. The certificate is issued by GitHub
+automatically; if the box is greyed out, the DNS has not propagated yet, so wait and reload.
+
+## 6. Verify
+
+- [ ] `https://clario.mahmoudanwari.com/` loads over HTTPS with no certificate warning
+- [ ] It redirects to `/en/`, `/nl/` or `/fr/` based on browser language
+- [ ] All three homepages render with images
+- [ ] Language switcher keeps the page: `/en/services/office-cleaning/` → NL → FR
+- [ ] A wrong URL such as `/en/nope/` shows the custom 404
+- [ ] `/robots.txt` and `/sitemap-index.xml` load, and the sitemap URLs use the custom domain
+- [ ] Quote wizard, booking calendar and contact form all reach their "nothing was sent" states
+- [ ] DevTools → Network shows **zero** requests when those forms are submitted
+- [ ] Open Graph preview works when the link is pasted into a chat app
+- [ ] `barber.mahmoudanwari.com` and `restaurant.mahmoudanwari.com` still load
+
+## 7. Updating the site afterwards
 
 ```bash
-git push -u origin main
+git add -A && git commit -m "Describe the change" && git push
 ```
 
-**Check before pushing:** `node_modules/`, `dist/` and `.astro/` are already in
-`.gitignore`. The photography in `src/assets/clario/` **is** committed on purpose — the
-build needs it. If you prefer to keep large PNGs out of Git history, convert them to JPEG or
-WebP first (they are ~2 MB each as PNG).
+That is the whole deploy. Pushing to `main` rebuilds and republishes. The workflow runs
+`astro check` and `npm run verify` first, so a type error, a missing translation key, or a
+regression that introduces a tracker or a live `mailto:` link fails the deploy instead of
+shipping.
 
-## 3. Connect Cloudflare Pages
+To re-run a deploy without a code change: **Actions** → the workflow → **Run workflow**.
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**.
-2. Authorise GitHub and pick the `clario-cleaning` repository.
-3. Set the build settings from the table in step 1.
-4. **Save and Deploy.** The first build takes a few minutes (install + image optimisation).
-5. You get a `*.pages.dev` URL. **Verify the site there before touching DNS** — see step 5.
+## 8. Rollback
 
-Every push to `main` then rebuilds production; pull requests get preview URLs automatically.
+GitHub Pages keeps previous deployments. Repository → **Settings** → **Pages** →
+**Deployments**, or revert the commit and push:
 
-## 4. Custom domain and DNS
+```bash
+git revert HEAD && git push
+```
 
-1. In the Pages project → **Custom domains** → **Set up a custom domain**.
-2. Enter `clario.mahmoudanwari.com`.
-3. Because `mahmoudanwari.com` is already in the same Cloudflare account, Cloudflare offers
-   to create the record for you. Accept it. It adds:
+There is no database and no server state, so a revert is a complete rollback.
 
-   | Type | Name | Target | Proxy |
-   | --- | --- | --- | --- |
-   | CNAME | `clario` | `<project>.pages.dev` | Proxied (orange cloud) |
+## 9. If the demo ever gains real functionality
 
-4. Wait for the domain to show **Active** (usually a minute or two; DNS propagation can take
-   longer on some resolvers).
-5. TLS is issued automatically by Cloudflare — no action needed.
+A working contact form, analytics or real bookings would make these inaccurate, and all of
+them must be updated in the same change:
 
-**Do not** change any existing record for the apex `mahmoudanwari.com` or `www`. Only the
-new `clario` subdomain record is involved.
-
-### `site` must match the final URL
-
-`astro.config.mjs` sets `site: 'https://clario.mahmoudanwari.com'`. This drives canonical
-URLs, `hreflang` and the sitemap. If you deploy somewhere else, change it there and rebuild,
-otherwise the canonicals will point at the wrong host.
-
-## 5. Post-deployment verification
-
-Run through this on the live URL (the `.pages.dev` one first, then the custom domain):
-
-- [ ] `/` redirects to `/en/`, `/nl/` or `/fr/` based on browser language.
-- [ ] All three homepages render with images: `/en/`, `/nl/`, `/fr/`.
-- [ ] Language switcher keeps the page: `/en/services/office-cleaning/` → NL → FR.
-- [ ] A deliberately wrong URL (e.g. `/en/nope/`) shows the custom 404, not Cloudflare's.
-- [ ] `https://clario.mahmoudanwari.com/robots.txt` is reachable and lists the sitemap.
-- [ ] `https://clario.mahmoudanwari.com/sitemap-index.xml` loads and the URLs use the custom
-      domain, not `.pages.dev`.
-- [ ] Share the URL in a Slack/WhatsApp/LinkedIn message box and confirm the Open Graph
-      preview shows the image and title (requires `public/images/clario/og-default.png`).
-- [ ] Quote wizard completes and ends on "nothing was sent".
-- [ ] Booking calendar completes and ends on "No appointment has been booked".
-- [ ] Contact form validates, then shows "Message not sent — this is a demo".
-- [ ] Open DevTools → Network, submit each form, confirm **zero** requests are made.
-- [ ] Animation toggle works and survives a reload.
-- [ ] Lighthouse on `/en/` (mobile) — see `docs/testing-report.md` for local baselines.
-
-## 6. Rollback
-
-Cloudflare Pages keeps every deployment. Project → **Deployments** → pick a previous one →
-**Rollback to this deployment**. Nothing else is needed; there is no database or state.
-
-## 7. Keeping the demo honest after launch
-
-If the demo is ever extended with real functionality (a working contact form, analytics,
-bookings), the following must be updated in the same change:
-
-- `src/content/legal.ts` — all four documents describe current behaviour literally.
+- `src/content/legal.ts` — all four documents describe current behaviour literally, including
+  the hosting paragraph in the privacy policy.
 - `src/content/pages.ts` → `demo` — the "About This Demo" list.
-- `src/components/CookiePreferences.astro` — it currently states that nothing is installed.
-- `scripts/verify-build.mjs` — the privacy assertions will (correctly) fail until updated.
+- `src/components/CookiePreferences.astro` — it currently states nothing is installed.
+- `scripts/verify-build.mjs` — its privacy assertions will correctly fail until updated.
