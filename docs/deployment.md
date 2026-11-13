@@ -11,8 +11,8 @@ at GitHub Pages through a Cloudflare DNS record.
 
 | Item | State |
 | --- | --- |
-| `.github/workflows/deploy.yml` | Actions workflow: checkout@v4 → setup-node@v4 (Node 22, npm cache) → `npm ci` → `npm run build` (includes `astro check`) → `npm run verify` → upload-pages-artifact@v3 → deploy-pages@v4 |
-| `public/CNAME` | Contains `clario.mahmoudanwari.com`, so the custom domain survives every Actions deploy |
+| `.github/workflows/deploy.yml` | Actions workflow: checkout@v4 → setup-node@v4 (Node 24, npm cache) → `npm ci` → `npm run build` (includes `astro check`) → `npm test` → upload-pages-artifact@v3 → deploy-pages@v4 |
+| Custom domain | Held in Settings → Pages → Custom domain, not a CNAME file in the repo — the same as `barber` and `restaurant` |
 | `astro.config.mjs` | `site: 'https://clario.mahmoudanwari.com'` — canonical URLs, `hreflang` and the sitemap all use it |
 | Base path | None. The site is served at the domain root, so no `base` is configured |
 | Git identity | Set **locally for this repo only**: `Mahmood Anwari <mahmoudanwari@users.noreply.github.com>`. Your global identity is untouched |
@@ -94,7 +94,7 @@ git add -A && git commit -m "Describe the change" && git push
 ```
 
 That is the whole deploy. Pushing to `main` rebuilds and republishes. The workflow runs
-`astro check` and `npm run verify` first, so a type error, a missing translation key, or a
+`astro check` and `npm test` first, so a type error, a missing translation key, or a
 regression that introduces a tracker or a live `mailto:` link fails the deploy instead of
 shipping.
 

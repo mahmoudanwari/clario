@@ -4,7 +4,7 @@
  * no trackers, no live contact links, no form submission targets, plus
  * baseline SEO and accessibility hygiene on every generated page.
  *
- * Usage: npm run verify   (after npm run build)
+ * Usage: npm test   (after npm run build)
  */
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';

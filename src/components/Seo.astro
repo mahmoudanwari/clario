@@ -13,8 +13,12 @@ interface Props {
 
 const { lang, title, description, path, noindex = false } = Astro.props;
 const canonicalPath = path.endsWith('/') ? path : `${path}/`;
-const canonical = new URL(canonicalPath, site.url).toString();
-const ogImage = new URL('/images/clario/og-default.jpg', site.url).toString();
+// Astro.site comes from `site` in astro.config.mjs, which the deploy workflow
+// can override with SITE_URL — so canonicals, hreflang and OG always agree
+// with the sitemap, whatever the site is deployed to.
+const base = Astro.site ?? new URL(site.url);
+const canonical = new URL(canonicalPath, base).toString();
+const ogImage = new URL('/images/clario/og-default.jpg', base).toString();
 // Avoid "Clario Cleaning — … — Clario Cleaning" when the page title already
 // carries the brand (the homepage does, for search results).
 const fullTitle = title.includes(site.name) ? title : `${title} · ${site.name}`;
@@ -26,9 +30,9 @@ const fullTitle = title.includes(site.name) ? title : `${title} · ${site.name}`
 {noindex && <meta name="robots" content="noindex,follow" />}
 
 {locales.map((l) => (
-  <link rel="alternate" hreflang={localeMeta[l].intl} href={new URL(swapLocale(canonicalPath, l), site.url).toString()} />
+  <link rel="alternate" hreflang={localeMeta[l].intl} href={new URL(swapLocale(canonicalPath, l), base).toString()} />
 ))}
-<link rel="alternate" hreflang="x-default" href={new URL(swapLocale(canonicalPath, 'en'), site.url).toString()} />
+<link rel="alternate" hreflang="x-default" href={new URL(swapLocale(canonicalPath, 'en'), base).toString()} />
 
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content={site.name} />

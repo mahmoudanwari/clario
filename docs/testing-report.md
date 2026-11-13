@@ -33,7 +33,7 @@ native CSS binding (`satteri`) is blocked by the Windows Application Control pol
 (`ERR_DLOPEN_FAILED`). The project was moved to **Astro 5.18.2**, which has a pure-JS
 pipeline and builds cleanly. `sharp` (image optimisation) loads fine.
 
-## 2. Automated QA pass (`npm run verify`)
+## 2. Automated QA pass (`npm test`)
 
 A script in `scripts/verify-build.mjs` parses all 50 built HTML pages. **Result: PASSED.**
 

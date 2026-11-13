@@ -87,7 +87,7 @@ service and legal pages multiply locales × documents in a single `getStaticPath
 `src/i18n/ui.ts` declares the English object first, derives `type UIStrings = typeof en`,
 then annotates `nl` and `fr` with that type. A missing or misspelled key is a **build
 error**, not a silent English fallback. The same pattern is used for `home.ts`, `pages.ts`,
-`interactive.ts` and `legal.ts`. `npm run verify` additionally scans built NL/FR pages for
+`interactive.ts` and `legal.ts`. `npm test` additionally scans built NL/FR pages for
 leftover English UI phrases.
 
 ## The image system
@@ -162,7 +162,7 @@ plus `x-default`, Open Graph and Twitter card tags. `@astrojs/sitemap` generates
 
 **No `LocalBusiness`, `Organization`, `Service`, `Review` or `AggregateRating` structured
 data is emitted**, deliberately: that markup would assert to search engines that a fictional
-company is a real, verified business. `npm run verify` fails the build if any appears.
+company is a real, verified business. `npm test` fails the build if any appears.
 
 ## Extending to a real business later
 

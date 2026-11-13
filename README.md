@@ -34,7 +34,7 @@ Then open <http://localhost:4321> (it redirects to `/en/`).
 | `npm run build:fast` | Build without the type-check |
 | `npm run preview` | Serve the built `dist/` locally |
 | `npm run check` | Type-check only |
-| `npm run verify` | Static QA pass over `dist/` (privacy, SEO, a11y, translations) |
+| `npm test` | Static QA pass over `dist/` (privacy, SEO, a11y, translations) |
 | `npm run manifest` | Regenerate `docs/image-assets.md` from the image registry |
 | `npm run prompts` | Regenerate `docs/image-prompts.md` for any image slot still missing |
 
@@ -53,17 +53,19 @@ git add -A && git commit -m "Describe the change" && git push
 ```
 
 `.github/workflows/deploy.yml` then runs on every push: `npm ci` → `npm run build`
-(which runs `astro check` first) → `npm run verify` → `upload-pages-artifact@v3` →
+(which runs `astro check` first) → `npm test` → `upload-pages-artifact@v3` →
 `deploy-pages@v4`. A type error, a missing translation key, or a regression that would
 introduce a tracker or a live `mailto:` link **fails the deploy instead of shipping**.
 
 The pieces that make this work, so they are not broken by accident:
 
 - **Settings → Pages → Source** is set to **GitHub Actions** (not a branch).
-- **`public/CNAME`** contains `clario.mahmoudanwari.com`. It ends up in `dist/`, and therefore
-  in the deployed artifact, which is what keeps the custom domain attached across deploys.
-- **`site`** in `astro.config.mjs` is the full custom domain. It drives canonical URLs,
-  `hreflang` and the sitemap — change it and those all follow.
+- **The custom domain** lives in Settings → Pages → Custom domain, not in a CNAME file in
+  the repo — the same arrangement as the other two sites.
+- **`site`** in `astro.config.mjs` is the full custom domain, read from `SITE_URL` when the
+  workflow sets it. It drives canonical URLs, `hreflang`, Open Graph and the sitemap — change
+  it and those all follow. A repository variable named `SITE_URL` overrides it, which is how
+  you'd point a build at a different host without editing code.
 - **No `base` path** is configured, because the site is served at the domain root. The
   `mahmoudanwari.github.io/clario/` URL will therefore look broken; that is expected.
 - **DNS** is a single `CNAME` record at Cloudflare: `clario` → `mahmoudanwari.github.io`,

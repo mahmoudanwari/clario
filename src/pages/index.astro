@@ -7,6 +7,10 @@
  */
 import { site } from '../data/site.ts';
 import { locales, localeMeta } from '../i18n/config.ts';
+
+// Same base as Seo.astro, so this page's canonical and hreflang follow
+// SITE_URL too rather than drifting from the rest of the site.
+const base = Astro.site ?? new URL(site.url);
 ---
 
 <!doctype html>
@@ -16,11 +20,11 @@ import { locales, localeMeta } from '../i18n/config.ts';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{site.name}</title>
     <meta name="description" content="Clario Cleaning — a fictional multilingual commercial cleaning brand concept. Choose your language." />
-    <link rel="canonical" href={`${site.url}/en/`} />
+    <link rel="canonical" href={new URL(`/en/`, base).toString()} />
     <meta http-equiv="refresh" content="0; url=/en/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     {locales.map((l) => (
-      <link rel="alternate" hreflang={localeMeta[l].intl} href={`${site.url}/${l}/`} />
+      <link rel="alternate" hreflang={localeMeta[l].intl} href={new URL(`/${l}/`, base).toString()} />
     ))}
     <script is:inline>
       (function () {
