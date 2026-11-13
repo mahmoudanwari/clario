@@ -391,10 +391,16 @@ header's own listener in `Nav.astro` was removed so there is no duplication.
 line became a block-level element that produced a second, empty line — a visible gap between
 "Clean spaces." and "Clear standards.". The splitter now removes `<br>` elements after wrapping.
 
-## Content issue found while reviewing the result
+## Content issue found while reviewing the result — since resolved
 
 **CL-12 `service-deep-hero` has a step ladder in frame.** The Deep Cleaning page states plainly
 that work at height is outside the concept's scope — "no ladders, lifts or rope access" — and
 the art direction says never to depict it. The cleaner is correctly standing on the floor using
 a telescopic pole; only the ladder behind him contradicts the copy. The equivalent detail image
 (CL-13) is exactly right, so this is a single image to regenerate, not a pattern.
+
+**Resolved the same day.** A replacement was supplied and verified before going live: both
+cleaners work from the floor — one on the skirting, one at a table base — chairs are up on the
+tables, and nothing in shot could be stood on. The registry note for the slot now records why
+it was redone so the constraint is not lost on a future regeneration. All 30 image slots are
+supplied with no outstanding regenerations.
