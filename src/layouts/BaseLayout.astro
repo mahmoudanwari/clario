@@ -55,6 +55,8 @@ const htmlLang = localeMeta[lang].htmlLang;
       <slot name="skip-label">Skip to main content</slot>
     </a>
 
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
+
     <DemoRibbon lang={lang} />
     <Nav lang={lang} />
 
@@ -68,6 +70,7 @@ const htmlLang = localeMeta[lang].htmlLang;
 
     <script>
       import '../scripts/reveal.ts';
+      import '../scripts/motion.ts';
     </script>
   </body>
 </html>

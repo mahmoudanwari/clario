@@ -22,12 +22,12 @@ const { lang, eyebrow, title, lede, image, dark = false } = Astro.props;
 <section class={`page-hero ${dark ? 'on-dark surface-forest' : ''}`}>
   <div class="container-x page-hero__head">
     <p class="eyebrow" data-reveal="fade">{eyebrow}</p>
-    <h1 class="page-hero__title font-display" data-reveal="fade" set:html={title} />
+    <h1 class="page-hero__title font-display" data-reveal="rise" data-split-lines set:html={title} />
     {lede && <p class="lede page-hero__lede" data-reveal="fade">{lede}</p>}
   </div>
   {image && (
     <div class="container-x">
-      <div class="page-hero__media" data-reveal="mask">
+      <div class="page-hero__media" data-reveal="mask" data-parallax>
         <Media file={image} lang={lang} class="page-hero__img" sizes="100vw" loading="eager" fetchpriority="high" fit="width" />
       </div>
     </div>

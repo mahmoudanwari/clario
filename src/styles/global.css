@@ -296,6 +296,63 @@ em.accent, .accent-italic {
 .js-motion [data-reveal].is-in { opacity: 1; transform: none; }
 .js-motion [data-reveal='mask'].is-in { clip-path: inset(0 0 0 0 round var(--radius-lg)); }
 
+/* Rise: a slightly heavier lift, for headline blocks. */
+.js-motion [data-reveal='rise'] { transform: translate3d(0, 54px, 0); }
+
+/* Scale: media that settles into place rather than sliding. */
+.js-motion [data-reveal='scale'] {
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 1000ms var(--ease-out-expo), transform 1400ms var(--ease-out-expo);
+}
+.js-motion [data-reveal='scale'].is-in { opacity: 1; transform: scale(1); }
+
+/* ---------- Line-by-line headline reveal ----------
+   Each line is wrapped at runtime in .line > .line__inner. The wrapper clips,
+   the inner slides up, so the type appears to rise out of the baseline. */
+.line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.line__inner { display: block; }
+.js-motion .line__inner {
+  transform: translate3d(0, 108%, 0);
+  transition: transform 1100ms var(--ease-out-expo);
+  transition-delay: var(--line-delay, 0ms);
+}
+.js-motion .is-in .line__inner,
+.js-motion .line.is-in .line__inner { transform: none; }
+
+/* ---------- Scroll progress ---------- */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  height: 2px;
+  width: 100%;
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--color-forest), var(--color-sand));
+  pointer-events: none;
+}
+html[data-motion='off'] .scroll-progress { display: none; }
+
+/* ---------- Parallax ----------
+   `--parallax` is set from JS in pixels; the element is slightly oversized so
+   the movement never exposes an edge. */
+.js-motion [data-parallax] { will-change: transform; }
+.js-motion [data-parallax] > img,
+.js-motion [data-parallax] > picture > img {
+  transform: translate3d(0, var(--parallax, 0px), 0) scale(1.12);
+}
+
+/* ---------- Hover micro-interactions ---------- */
+@media (hover: hover) {
+  .js-motion .lift { transition: transform var(--dur-base) var(--ease-out-expo), box-shadow var(--dur-base); }
+  .js-motion .lift:hover { transform: translateY(-4px); }
+}
+
+/* Counters hold their own width so the layout never jitters while counting. */
+.counting { font-variant-numeric: tabular-nums; }
+
 html[data-motion='off'] *,
 html[data-motion='off'] *::before,
 html[data-motion='off'] *::after {

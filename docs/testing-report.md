@@ -357,3 +357,44 @@ against the live site.
 
 The gaps listed earlier remain: no other browsers, no real devices, no screen reader, and no
 Lighthouse run. Those are worth doing against the live URL now that one exists.
+
+---
+
+# Motion pass — 13 November 2026
+
+Richer animation added at the client's request, all of it inside the existing motion system
+(`.js-motion` gate, animation toggle, `prefers-reduced-motion`).
+
+| Effect | Where | Notes |
+| --- | --- | --- |
+| Line-by-line headline reveal | Every `SectionHeading`, both hero types | Lines are wrapped at runtime from the *rendered* line breaks, so it follows the real wrap at any width, and re-splits on significant resize |
+| Hero parallax | Homepage hero, page heroes, sustainability media | Desktop and fine-pointer only; a 6 % offset — depth, not travel |
+| Scroll progress bar | All pages | 2 px gradient, hidden entirely when motion is off |
+| Counting statistics | Homepage stats band | easeOutExpo, tabular numerals so the layout cannot jitter |
+| Header tuck | All pages | Hides on scroll-down past 600 px, returns instantly on scroll-up, never while the mobile menu is open |
+| Hover lift | Pricing cards, testimonials | `@media (hover: hover)` only |
+| Settle-in media | Large images | `scale` reveal variant |
+
+All of it is driven by **one** rAF-throttled scroll listener rather than one per effect. The
+header's own listener in `Nav.astro` was removed so there is no duplication.
+
+## Verified
+
+| Check | Result |
+| --- | --- |
+| Headline splitting preserves markup | ✅ 2 lines on the hero, `<em>` accent preserved, text identical |
+| Motion **off** hides nothing | ✅ 0 of 52 reveal elements hidden after a full page walk; headlines not split at all; counters show final values; progress bar `display: none`; header never tucks |
+| Counters | ✅ animate from 0 and settle on the target |
+| Type check, build, QA pass | ✅ 0 errors, 50 pages, QA green |
+
+**One bug found and fixed during this pass:** the hero headline contains a `<br>`, and once each
+line became a block-level element that produced a second, empty line — a visible gap between
+"Clean spaces." and "Clear standards.". The splitter now removes `<br>` elements after wrapping.
+
+## Content issue found while reviewing the result
+
+**CL-12 `service-deep-hero` has a step ladder in frame.** The Deep Cleaning page states plainly
+that work at height is outside the concept's scope — "no ladders, lifts or rope access" — and
+the art direction says never to depict it. The cleaner is correctly standing on the floor using
+a telescopic pole; only the ladder behind him contradicts the copy. The equivalent detail image
+(CL-13) is exactly right, so this is a single image to regenerate, not a pattern.

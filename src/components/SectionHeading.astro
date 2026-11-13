@@ -10,7 +10,9 @@ const { eyebrow, tag: Tag = 'h2', align = 'left', class: className = '' } = Astr
 
 <div class={`section-heading section-heading--${align} ${className}`} data-reveal="fade">
   {eyebrow && <p class="eyebrow">{eyebrow}</p>}
-  <Tag class="section-heading__title font-display"><slot /></Tag>
+  {/* data-split-lines: motion.ts wraps each rendered line so it rises out of
+      the baseline. Without JS, or with motion off, it is a plain heading. */}
+  <Tag class="section-heading__title font-display" data-split-lines><slot /></Tag>
   <slot name="lede" />
 </div>
 

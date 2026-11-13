@@ -97,6 +97,10 @@ function isActive(route: string) {
     transition: box-shadow var(--dur-base);
   }
   .site-header.is-scrolled { box-shadow: 0 8px 24px -16px rgb(14 36 30 / 0.25); }
+  /* Tucked away while scrolling down, back instantly on scroll up. Driven by
+     motion.ts, and never applied while the mobile menu is open. */
+  .site-header { transition: box-shadow var(--dur-base), transform 420ms var(--ease-out-expo); }
+  .site-header.is-tucked { transform: translateY(-100%); }
 
   .site-header__inner {
     display: flex;
@@ -218,10 +222,6 @@ function isActive(route: string) {
     const toggle = document.getElementById('menu-toggle') as HTMLButtonElement | null;
     const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
     if (!header || !toggle || !menu) return;
-
-    const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
 
     const closeLabel = toggle.querySelector('[data-menu-label]');
     const openText = closeLabel?.textContent ?? 'Open menu';

@@ -205,6 +205,7 @@ export const images = [
     composition: 'Wide; subjects within central 50%.', camera: 'Eye level or slightly low, 28–35mm.', aspect: '3:2', size: '2400 × 1600 px',
     lighting: 'Warm evening interior light mixed with dusk window light.', colors: GRADE, people: 'Yes — 2 cleaners.', uniform: UNIFORM,
     background: 'Contemporary Belgian bistro, wood tables, warm pendant lights.',
+    notes: 'NEEDS REPLACEMENT: the supplied version has a step ladder in frame. The Deep Cleaning page states plainly that work at height is outside the concept\'s scope ("no ladders, lifts or rope access"), so the image contradicts the copy. The cleaner is correctly standing on the floor with a telescopic pole — only the ladder has to go.',
     alt: {
       en: 'Two cleaners deep cleaning a restaurant dining room after closing',
       nl: 'Twee schoonmakers doen een grondige poetsbeurt in een restaurant na sluitingstijd',
