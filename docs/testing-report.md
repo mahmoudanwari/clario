@@ -310,3 +310,50 @@ documented in [architecture.md](architecture.md).
 6. **Fonts are the largest payload** (~120 KB for three variable font files). Dropping the
    italic Fraunces cut would save ~45 KB but would remove the italic accents that carry much
    of the brand's editorial character. Kept deliberately.
+
+---
+
+# Live deployment verification — 13 November 2026
+
+Published to GitHub Pages at **https://clario.mahmoudanwari.com**, matching the hosting of
+`barber.mahmoudanwari.com` and `restaurant.mahmoudanwari.com`. Everything below was executed
+against the live site.
+
+## Infrastructure
+
+| Check | Result |
+| --- | --- |
+| Actions workflow run | ✅ success — build, `astro check`, `npm test`, artifact upload, deploy |
+| DNS | ✅ `clario.mahmoudanwari.com CNAME mahmoudanwari.github.io`, **DNS only**, identical to the other two subdomains |
+| TLS certificate | ✅ Let's Encrypt, CN `clario.mahmoudanwari.com`, valid 13 Nov 2026 → 11 Feb 2027 |
+| Enforce HTTPS | ✅ on — `http://` returns **301** to `https://` |
+| Served by | ✅ GitHub.com edge (region fra) |
+| Other sites unaffected | ✅ barber, restaurant and the apex all still return 200 |
+
+## Pages and assets
+
+| Check | Result |
+| --- | --- |
+| 25 key paths across EN/NL/FR | ✅ all 200, zero failures |
+| Unknown path | ✅ returns 404 and the custom page |
+| `robots.txt` | ✅ correct, points at the sitemap on the custom domain |
+| `sitemap-0.xml` | ✅ 48 URLs, all on `https://clario.mahmoudanwari.com` |
+| Canonical / `og:url` / `og:image` | ✅ all absolute on the custom domain |
+| Mixed content | ✅ none — no `http://` references in page source |
+| Images on the homepage | ✅ 11 of 11 load after scrolling (the rest are correctly lazy) |
+| Placeholders remaining | ✅ zero |
+| Open Graph image | ✅ 200, 118 KB, 1200 × 630 |
+
+## Live behaviour
+
+| Check | Result |
+| --- | --- |
+| `/` language redirect | ✅ lands on `/en/` |
+| Scroll reveals | ✅ 0 pending after a full page walk |
+| Quote wizard (French) | ✅ ran to confirmation: 400 m² × €1.50 = **600,00 €**, formatted `fr-BE`, ending on "Simulation terminée — rien n’a été envoyé" |
+| **Network calls during the wizard** | ✅ **zero** — `fetch` and `XMLHttpRequest` were instrumented for the whole flow and recorded nothing. The privacy claim holds in production, not just locally |
+
+## Still not verified
+
+The gaps listed earlier remain: no other browsers, no real devices, no screen reader, and no
+Lighthouse run. Those are worth doing against the live URL now that one exists.
