@@ -73,7 +73,7 @@ _All slots are filled._
 | CL-25 | About | Teamwork (detail) | 1:1 | P3 | ✅ supplied |
 | CL-26 | Request a Quote | Side image | 4:5 | P3 | ✅ supplied |
 | CL-27 | Book an Assessment | Side image | 4:5 | P2 | ✅ supplied |
-| CL-28 | Contact | Page hero | 3:2 | P3 | ✅ supplied |
+| CL-28 | Contact | Page hero (portrait, beside the heading) | 4:5 | P3 | ✅ supplied |
 | CL-29 | Home | Hero — optional portrait crop for phones | 4:5 | P3 | ✅ supplied |
 | CL-30 | All pages | Social sharing (Open Graph) image | 1.91:1 | P2 | ✅ supplied |
 
@@ -994,30 +994,31 @@ _All slots are filled._
 | Field | Value |
 | --- | --- |
 | **Page** | Contact |
-| **Section** | Page hero |
-| **Aspect ratio** | 3:2 |
-| **Suggested size** | 2400 × 1600 px |
+| **Section** | Page hero (portrait, beside the heading) |
+| **Aspect ratio** | 4:5 |
+| **Suggested size** | 1200 × 1500 px |
 | **Priority** | P3 |
-| **People visible** | No. |
-| **Uniform** | Not applicable |
-| **Crop focus** | `object-position: 65% 50%` |
+| **People visible** | Yes — one team member, face visible. A fictional model, not a real employee. |
+| **Uniform** | Forest-green (#244F41 family) short-sleeve polo or zip work jacket, charcoal work trousers, small ivory CLARIO wordmark on chest (text only, no other logos), clean non-slip shoes. No gloves unless handling products. |
 
-**Subject.** Calm hospitality lounge/café interior, freshly cleaned, morning light, no people.
+**Subject.** A Clario team member standing at a reception counter in a bright modern office, arms folded, looking toward the camera with an easy, welcoming expression.
 
-**Composition.** Wide, quiet left side.
+**Composition.** Portrait. Subject centred, from mid-thigh up, with the counter leading in from the left and the office softly out of focus behind.
 
-**Camera.** 28–35mm.
+**Camera.** Eye level, 50–85mm, shallow depth of field.
 
 **Lighting.** Soft natural daylight from large windows, gentle warm bounce, no harsh shadows, no visible flash
 
 **Colour grade.** Warm ivory highlights, muted forest and sage greens, subtle sand/oak accents; low saturation, editorial grade
 
-**Background.** Café seating, plants, warm wood.
+**Background.** Office reception: oak counter, plants, glazed partitions, desks beyond.
 
 **Alt text**
-- EN — A calm, freshly cleaned café lounge in morning light
-- NL — Een rustige, pas gepoetste lounge in het ochtendlicht
-- FR — Un salon de café calme et fraîchement nettoyé dans la lumière du matin
+- EN — A Clario team member in a forest-green polo standing at an office reception counter
+- NL — Een medewerker van Clario in een bosgroene polo aan de receptiebalie van een kantoor
+- FR — Un membre de l’équipe Clario en polo vert forêt, à l’accueil d’un bureau
+
+**Notes.** Portrait by design: the contact page places it beside the heading rather than as a wide band, so a landscape version would not fit the layout.
 
 ---
 
