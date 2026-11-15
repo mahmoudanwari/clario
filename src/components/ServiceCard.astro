@@ -16,7 +16,7 @@ const price = formatPrice(rule.ratePerM2, localeMeta[lang].intl);
 const perUnit = rule.basis === 'glass' ? strings.pricing.perM2Glass : strings.pricing.perM2Floor;
 ---
 
-<a href={href(lang, service.route)} class="service-card" data-reveal="mask">
+<a href={href(lang, service.route)} class="service-card spotlight" data-reveal="mask">
   <div class="service-card__media">
     <Media file={service.hero} lang={lang} class="service-card__img" sizes="(min-width: 64rem) 28vw, (min-width: 40rem) 45vw, 90vw" />
     <span class="service-card__number">{service.number}</span>
@@ -66,7 +66,7 @@ const perUnit = rule.basis === 'glass' ? strings.pricing.perM2Glass : strings.pr
     padding: 0.3rem 0.65rem;
     border-radius: 999px;
   }
-  .service-card__body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
+  .service-card__body { position: relative; z-index: 2; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; flex: 1; }
   .service-card__title { font-size: var(--step-1); }
   .service-card__text { color: var(--color-ink-soft); font-size: 0.93rem; line-height: 1.55; flex: 1; }
   .service-card__price { font-weight: 700; color: var(--color-forest); font-size: 0.95rem; }

@@ -52,7 +52,7 @@ function isActive(route: string) {
           responsive rules below actually apply to it. */}
       <div class="site-header__motion"><MotionToggle lang={lang} /></div>
       <LanguageSwitcher lang={lang} />
-      <a href={href(lang, 'quote')} class="btn btn-sand site-header__cta">
+      <a href={href(lang, 'quote')} class="btn btn-sand site-header__cta" data-magnetic>
         {strings.cta.quote}
         <span class="btn-arrow" aria-hidden="true">→</span>
       </a>

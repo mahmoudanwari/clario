@@ -240,8 +240,181 @@ export function initMotion() {
   initSplitHeadlines();
 }
 
+/* ------------------------------------------------------------------ *
+ * Pointer-driven motion.
+ *
+ * Only on devices with a real pointer. Every handler is rAF-throttled and
+ * writes CSS custom properties rather than touching layout, so the browser
+ * can keep all of it on the compositor.
+ * ------------------------------------------------------------------ */
+function initPointer() {
+  if (!motionOn()) return;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  // --- Spotlight: a soft light that tracks the cursor across a card ---
+  document.querySelectorAll<HTMLElement>('.spotlight').forEach((card) => {
+    if (card.dataset.spotWired) return;
+    card.dataset.spotWired = 'true';
+    let frame = 0;
+    card.addEventListener(
+      'pointermove',
+      (e) => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const r = card.getBoundingClientRect();
+          card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`);
+          card.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`);
+        });
+      },
+      { passive: true }
+    );
+  });
+
+  // --- Magnetic buttons: lean toward the cursor, spring back on leave ---
+  document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
+    if (el.dataset.magWired) return;
+    el.dataset.magWired = 'true';
+    const strength = Number(el.dataset.magnetic) || 0.22;
+    let frame = 0;
+
+    el.addEventListener(
+      'pointermove',
+      (e) => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const r = el.getBoundingClientRect();
+          const dx = e.clientX - (r.left + r.width / 2);
+          const dy = e.clientY - (r.top + r.height / 2);
+          // Capped so the control never wanders far from where it is drawn —
+          // it must stay easy to click, and keyboard users see none of this.
+          const cap = 10;
+          el.style.setProperty('--magnet-x', `${Math.max(-cap, Math.min(cap, dx * strength)).toFixed(1)}px`);
+          el.style.setProperty('--magnet-y', `${Math.max(-cap, Math.min(cap, dy * strength)).toFixed(1)}px`);
+        });
+      },
+      { passive: true }
+    );
+
+    const release = () => {
+      el.style.setProperty('--magnet-x', '0px');
+      el.style.setProperty('--magnet-y', '0px');
+    };
+    el.addEventListener('pointerleave', release, { passive: true });
+    el.addEventListener('blur', release);
+  });
+
+  // --- Hero depth: layers drift a few pixels with the pointer ---
+  const depthEls = Array.from(document.querySelectorAll<HTMLElement>('[data-pointer-depth]'));
+  if (depthEls.length) {
+    let frame = 0;
+    const onMove = (e: PointerEvent) => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        // -1 … 1 across the viewport, inverted so layers move *against* the
+        // cursor, which is what reads as depth rather than as sliding.
+        const x = -((e.clientX / window.innerWidth) * 2 - 1);
+        const y = -((e.clientY / window.innerHeight) * 2 - 1);
+        for (const el of depthEls) {
+          el.style.setProperty('--pointer-x', x.toFixed(3));
+          el.style.setProperty('--pointer-y', y.toFixed(3));
+        }
+      });
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Scroll velocity: a small skew on media while scrolling fast, and the
+ * drift of the marquee strips.
+ * ------------------------------------------------------------------ */
+function initVelocity() {
+  const skewEls = Array.from(document.querySelectorAll<HTMLElement>('[data-velocity]'));
+  const marquees = Array.from(document.querySelectorAll<HTMLElement>('[data-marquee]'));
+  if (!skewEls.length && !marquees.length) return;
+
+  if (!motionOn()) {
+    skewEls.forEach((el) => el.style.setProperty('--skew', '0deg'));
+    return;
+  }
+
+  const allowSkew = !isNarrow() && !prefersCoarse();
+  let lastY = window.scrollY;
+  let velocity = 0;
+  // Marquees always drift; scrolling just pushes them along a little.
+  const offsets = marquees.map(() => 0);
+  let running = true;
+
+  const tick = () => {
+    if (!running) return;
+    const y = window.scrollY;
+    const delta = y - lastY;
+    lastY = y;
+
+    // Ease toward the current delta, then decay — this is what makes it
+    // settle instead of snapping.
+    velocity += (delta - velocity) * 0.18;
+    velocity *= 0.92;
+    if (Math.abs(velocity) < 0.01) velocity = 0;
+
+    if (allowSkew) {
+      const skew = Math.max(-1.4, Math.min(1.4, velocity * 0.06));
+      for (const el of skewEls) el.style.setProperty('--skew', `${skew.toFixed(2)}deg`);
+    }
+
+    marquees.forEach((m, i) => {
+      const track = m.querySelector<HTMLElement>('.marquee__track');
+      if (!track) return;
+      const dir = Number(m.dataset.marquee) || 1;
+      // A slow constant drift, nudged by how fast the page is moving.
+      offsets[i] = (offsets[i] ?? 0) - dir * (0.35 + Math.abs(velocity) * 0.06);
+      const width = track.scrollWidth / 2 || 1;
+      if (offsets[i]! <= -width) offsets[i] = (offsets[i] ?? 0) + width;
+      if (offsets[i]! >= 0 && dir < 0) offsets[i] = (offsets[i] ?? 0) - width;
+      track.style.setProperty('--marquee-x', `${offsets[i]!.toFixed(1)}px`);
+    });
+
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+
+  // Stop the loop when the tab is hidden so it costs nothing in the background.
+  //
+  // Zero the skew on the way out. Browsers throttle requestAnimationFrame in a
+  // hidden tab, so without this the decay never finishes and whatever skew was
+  // applied at the moment of hiding stays frozen on the element — the page
+  // would be visibly tilted when the viewer came back.
+  const resetSkew = () => skewEls.forEach((el) => el.style.setProperty('--skew', '0deg'));
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      running = false;
+      velocity = 0;
+      resetSkew();
+    } else if (!running) {
+      running = true;
+      velocity = 0;
+      lastY = window.scrollY;
+      resetSkew();
+      requestAnimationFrame(tick);
+    }
+  });
+
+  // Same reasoning for a page being restored from the back/forward cache.
+  window.addEventListener('pageshow', () => {
+    velocity = 0;
+    lastY = window.scrollY;
+    resetSkew();
+  });
+}
+
 function setup() {
   initMotion();
+  initPointer();
+  initVelocity();
 }
 
 setup();

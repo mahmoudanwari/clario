@@ -404,3 +404,52 @@ cleaners work from the floor — one on the skirting, one at a table base — ch
 tables, and nothing in shot could be stood on. The registry note for the slot now records why
 it was redone so the constraint is not lost on a future regeneration. All 30 image slots are
 supplied with no outstanding regenerations.
+
+---
+
+# Pointer motion pass — 15 November 2026
+
+Added at the client's request, after reviewing how `barber.mahmoudanwari.com` and
+`restaurant.mahmoudanwari.com` animate. Neither of those uses pointer-driven motion — the
+barber site is a `data-reveal` system plus hover zoom and a button sweep, the restaurant site
+has a marquee and a pulse ring — so this is new ground rather than a copy.
+
+| Effect | Where | Gate |
+| --- | --- | --- |
+| Cursor spotlight | Service cards, pricing cards, testimonials | `(hover: hover) and (pointer: fine)` + `.js-motion` |
+| Magnetic buttons | Header CTA, both hero CTAs | Same, capped at 10 px so the control never leaves its hit area |
+| Pointer depth | Hero backdrop (+10 px) and inset card (−22 px), moving against the cursor | Same |
+| Scroll-velocity skew | Services grid | Desktop only, capped at 1.4° |
+| Drifting marquee | Belgian cities strip | Direction and a little speed from the scroll |
+
+All of it writes CSS custom properties from rAF-throttled handlers, so the work stays on the
+compositor rather than triggering layout.
+
+## Verified
+
+| Check | Result |
+| --- | --- |
+| Spotlight tracks the cursor | ✅ `--mx` / `--my` update on pointer move |
+| Magnetic button | ✅ moves and clamps at the 10 px cap |
+| Pointer depth | ✅ hero layers translate against the cursor |
+| Marquee | ✅ drifts continuously (−63 px/s measured) |
+| Velocity skew | ✅ peaked at 0.54° during fast scrolling and settled to exactly 0 |
+| **Spotlight cannot block clicks** | ✅ overlay is `pointer-events: none`; hit tests at three points on a card all reach the card's link |
+| Motion **off** | ✅ no spotlight overlay generated at all (`content: none`), no magnet or depth variables set, every transform `none`, skew `0deg`, marquee static and scrollable, 0 reveal elements hidden |
+
+**Bug found and fixed:** the velocity skew could freeze mid-tilt. Browsers throttle
+`requestAnimationFrame` in a hidden tab, so if the tab was hidden mid-scroll the decay never
+finished and the element stayed visibly skewed on return. The skew is now zeroed on
+`visibilitychange` and on `pageshow`.
+
+## Pre-existing bug found while reviewing — the service-area map was invisible
+
+The Belgian coverage map had **collapsed to zero width**, stacking all nine city dots on a
+single point. It has been broken since it was written; earlier passes checked the section's
+text and never looked closely at the panel itself.
+
+Cause: `.areas__panel` is a grid item with `margin-inline: auto` and no explicit width. Auto
+margins cancel a grid item's default `stretch`, and because every child of the panel is
+absolutely positioned its content width was zero — so the panel was zero too. Fixed with an
+explicit `width: 100%`, and the reason is now a comment in the file so it is not "tidied" away.
+Verified after the fix: 480 × 480 panel, nine distinct dot positions, connecting lines drawn.

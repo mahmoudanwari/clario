@@ -6,6 +6,17 @@ interface Props { lang: Locale }
 const { lang } = Astro.props;
 ---
 
+{/* A slow drifting strip of the coverage cities. It takes a little of its
+    speed from the scroll; with motion off it becomes a plain scrollable row.
+    The duplicate copy is hidden from assistive tech, and the real list of
+    cities below remains the accessible source of this information. */}
+<div class="marquee areas-marquee" data-marquee="1" aria-hidden="true">
+  <div class="marquee__track">
+    {site.cities.map((city) => <span class="marquee__item">{city[lang]}</span>)}
+    {site.cities.map((city) => <span class="marquee__item">{city[lang]}</span>)}
+  </div>
+</div>
+
 <div class="areas" data-reveal="fade">
   <div class="areas__panel" aria-hidden="true">
     <svg viewBox="0 0 100 100" class="areas__lines" preserveAspectRatio="none">
@@ -30,12 +41,19 @@ const { lang } = Astro.props;
 </div>
 
 <style>
+  .areas-marquee { margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+
   .areas { display: grid; gap: 2rem; }
   @media (min-width: 56rem) { .areas { grid-template-columns: 1.3fr 1fr; align-items: center; } }
 
   .areas__panel {
     position: relative;
     aspect-ratio: 1/1;
+    /* width:100% is load-bearing. As a grid item, `margin-inline: auto`
+       cancels the default stretch, and every child here is absolutely
+       positioned — so without an explicit width the panel collapses to zero
+       and all nine city dots pile up on a single point. */
+    width: 100%;
     max-width: 30rem;
     margin-inline: auto;
     border-radius: var(--radius-xl);

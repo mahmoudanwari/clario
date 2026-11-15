@@ -353,6 +353,100 @@ html[data-motion='off'] .scroll-progress { display: none; }
 /* Counters hold their own width so the layout never jitters while counting. */
 .counting { font-variant-numeric: tabular-nums; }
 
+/* ==========================================================================
+   Pointer-driven motion.
+   Everything here is wrapped in (hover: hover) and (pointer: fine) so a
+   touch device never pays for it, and gated on .js-motion like the rest.
+   `--mx` / `--my` are written by motion.ts as percentages.
+   ========================================================================== */
+@media (hover: hover) and (pointer: fine) {
+  /* Soft light that follows the cursor across a card. */
+  .js-motion .spotlight { position: relative; isolation: isolate; }
+  .js-motion .spotlight::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 450ms var(--ease-out-expo);
+    background: radial-gradient(
+      22rem circle at var(--mx, 50%) var(--my, 50%),
+      rgb(214 165 116 / 0.16),
+      transparent 60%
+    );
+  }
+  .js-motion .spotlight:hover::after { opacity: 1; }
+  .js-motion .spotlight.on-dark::after,
+  .on-dark .js-motion .spotlight::after {
+    background: radial-gradient(22rem circle at var(--mx, 50%) var(--my, 50%), rgb(246 242 233 / 0.1), transparent 60%);
+  }
+
+  /* Buttons lean very slightly toward the cursor. */
+  .js-motion [data-magnetic] {
+    transform: translate3d(var(--magnet-x, 0px), var(--magnet-y, 0px), 0);
+    transition: transform 500ms var(--ease-out-expo);
+  }
+  .js-motion [data-magnetic]:active { transition-duration: 120ms; }
+
+  /* Hero layers drift a few pixels with the pointer, at different depths. */
+  .js-motion [data-pointer-depth] {
+    transform: translate3d(
+      calc(var(--pointer-x, 0) * var(--depth, 6px)),
+      calc(var(--pointer-y, 0) * var(--depth, 6px)),
+      0
+    );
+    transition: transform 900ms var(--ease-out-expo);
+  }
+}
+
+/* ==========================================================================
+   Scroll-velocity skew — media leans a little into fast scrolling and
+   settles back. Capped hard: this should be felt, not seen.
+   ========================================================================== */
+.js-motion [data-velocity] {
+  transform: skewY(var(--skew, 0deg));
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Marquee — a slow drifting strip that takes its direction and a little of
+   its speed from the scroll. Duplicated content is aria-hidden.
+   ========================================================================== */
+.marquee {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  gap: 0;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  padding-right: clamp(1.5rem, 4vw, 3.5rem);
+  white-space: nowrap;
+  transform: translate3d(var(--marquee-x, 0px), 0, 0);
+}
+.marquee__item {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.75rem);
+  color: var(--color-forest);
+  opacity: 0.75;
+}
+.marquee__item::after {
+  content: '·';
+  margin-left: clamp(1.5rem, 4vw, 3.5rem);
+  color: var(--color-sand);
+}
+.on-dark .marquee__item { color: var(--color-ivory); }
+/* With motion off the strip is a static, perfectly readable list. */
+html[data-motion='off'] .marquee { mask-image: none; -webkit-mask-image: none; overflow-x: auto; }
+html[data-motion='off'] .marquee__track { transform: none; }
+
 html[data-motion='off'] *,
 html[data-motion='off'] *::before,
 html[data-motion='off'] *::after {

@@ -25,7 +25,7 @@ const intl = localeMeta[lang].intl;
 <BaseLayout lang={lang} title={copy.meta.title} description={copy.meta.description}>
   <!-- ================= HERO ================= -->
   <section class="hero">
-    <div class="hero__media" data-parallax aria-hidden="false">
+    <div class="hero__media" data-parallax data-pointer-depth style="--depth:10px" aria-hidden="false">
       <Media file="home-hero-team-office" lang={lang} class="hero__img" sizes="100vw" loading="eager" fetchpriority="high" />
       <div class="hero__scrim"></div>
     </div>
@@ -37,16 +37,16 @@ const intl = localeMeta[lang].intl;
       </h1>
       <p class="lede hero__lede on-dark" data-reveal="fade">{copy.hero.lede}</p>
       <div class="hero__actions" data-reveal="fade">
-        <a href={href(lang, 'quote')} class="btn btn-sand">
+        <a href={href(lang, 'quote')} class="btn btn-sand" data-magnetic>
           {strings.cta.quote}
           <span class="btn-arrow" aria-hidden="true">→</span>
         </a>
-        <a href={href(lang, 'services')} class="btn btn-ghost on-dark">{strings.cta.explore}</a>
+        <a href={href(lang, 'services')} class="btn btn-ghost on-dark" data-magnetic="0.15">{strings.cta.explore}</a>
       </div>
       <p class="hero__caption on-dark" data-reveal="fade">{copy.hero.caption}</p>
     </div>
 
-    <div class="hero__inset" data-reveal="mask">
+    <div class="hero__inset" data-reveal="mask" data-pointer-depth style="--depth:-22px">
       <Media file="home-hero-detail-glass" lang={lang} class="hero__inset-img" sizes="22vw" />
     </div>
 
@@ -83,7 +83,7 @@ const intl = localeMeta[lang].intl;
         <Fragment set:html={copy.services.title} />
         <p class="lede" slot="lede" style="margin-inline:auto;text-align:center">{copy.services.lede}</p>
       </SectionHeading>
-      <div class="services-grid" data-reveal-group>
+      <div class="services-grid" data-reveal-group data-velocity>
         {services.map((service) => (
           <ServiceCard lang={lang} service={service} />
         ))}
@@ -172,7 +172,7 @@ const intl = localeMeta[lang].intl;
           const price = formatPrice(rule.ratePerM2, intl);
           const unit = rule.basis === 'glass' ? strings.pricing.perM2Glass : strings.pricing.perM2Floor;
           return (
-            <a href={href(lang, service.route)} class="pricing-card lift" data-reveal="fade">
+            <a href={href(lang, service.route)} class="pricing-card lift spotlight" data-reveal="fade">
               <span class="pricing-card__name">{service.copy[lang].name}</span>
               <span class="pricing-card__price">
                 <span class="pricing-card__from">{strings.pricing.from}</span> {price}
@@ -211,7 +211,7 @@ const intl = localeMeta[lang].intl;
       <p class="testimonials__note">{copy.testimonials.note}</p>
       <div class="testimonials-grid" data-reveal-group>
         {copy.testimonials.items.map((item) => (
-          <blockquote class="testimonial lift" data-reveal="fade">
+          <blockquote class="testimonial lift spotlight on-dark" data-reveal="fade">
             <p>&ldquo;{item.quote}&rdquo;</p>
             <footer><strong>{item.role}</strong><span>{item.org}</span></footer>
           </blockquote>
